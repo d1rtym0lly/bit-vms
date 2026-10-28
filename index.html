@@ -2178,7 +2178,7 @@ function renderCover(B){
         h('div',{}, h('div',{class:'mt'},'Твой ранг'), h('div',{class:'mn2'}, r.name),
           h('span',{class:'rk-bar'}, h('i',{style:`width:${Math.round(r.x/r.mx*100)}%`})),
           h('div',{class:'mx'}, `${r.x} из ${r.mx} XP${r.next ? ` · до «${r.next}» ещё ${r.need}` : ' · высший ранг'}`))),
-      h('div',{class:'row'}, U.btn(S.done[B.lessons[0].id] ? `Продолжить: глава ${cont}` : 'Начать с главы 1', ()=>go(B.key,cont,1),'pri'), U.btn('Шпаргалка', openSheet), U.btn('Тренажёр', openQuiz), U.btn('Режим концентрации', openFocus)),
+      h('div',{class:'row'}, U.btn(S.done[B.lessons[0].id] ? `Продолжить: глава ${cont}` : 'Начать с главы 1', ()=>go(B.key,cont,1),'pri'), U.btn('Шпаргалка', openSheet), U.btn('Тренажёр', openQuiz), U.btn('Режим концентрации', openFocus), U.btn('Перенести прогресс', openXfer)),
       B.cover ? art : null,
       h('p',{class:'theory'}, B.src+'.'),
       h('h3',{},'Как работать с книгой'),
@@ -2450,7 +2450,8 @@ function openToc(){
       h('h3',{}, B.name+' — '+B.sub),
       h('ul',{class:'toclist'}, h('li',{}, h('button',{type:'button',onclick:()=>go(k,0,-1)}, h('span',{class:'n'},'·'), h('span',{},'Обложка и карта курса'), h('span',{})))),
       ...B.parts.map((p,pi)=>h('div',{}, h('div',{class:'part-lbl',style:'margin:12px 0 2px'}, `Часть ${ROMAN[pi]} · ${p.t}`),
-        h('ul',{class:'toclist'}, B.lessons.filter(L=>L.partNo===pi).map(L=>{ const i = ++n; return h('li',{}, h('button',{type:'button',onclick:()=>go(k,i,1)}, h('span',{class:'n'},String(i)), h('span',{},L.title), chips(L))); }))))); }));
+        h('ul',{class:'toclist'}, B.lessons.filter(L=>L.partNo===pi).map(L=>{ const i = ++n; return h('li',{}, h('button',{type:'button',onclick:()=>go(k,i,1)}, h('span',{class:'n'},String(i)), h('span',{},L.title), chips(L))); }))))); }),
+    h('div',{class:'row',style:'margin-top:20px'}, U.btn('Перенести прогресс на другое устройство', ()=>{ closeToc(); openXfer(); })));
   toc.hidden = false; tocPanel.querySelector('button').focus();
 }
 function closeToc(){ toc.hidden = true; }
@@ -2519,8 +2520,8 @@ function showQ(){
 }
 quiz.addEventListener('click', e => { if (e.target===quiz) quiz.hidden=true; });
 document.addEventListener('keydown', e => {
-  if (e.key==='Escape'){ closeToc(); quiz.hidden = true; sheet.hidden = true; focusDlg.hidden = true; }
-  if (e.target.matches('input,select,textarea') || !toc.hidden || !quiz.hidden || !sheet.hidden || !focusDlg.hidden) return;
+  if (e.key==='Escape'){ closeToc(); quiz.hidden = true; sheet.hidden = true; focusDlg.hidden = true; xfer.hidden = true; }
+  if (e.target.matches('input,select,textarea') || !toc.hidden || !quiz.hidden || !sheet.hidden || !focusDlg.hidden || !xfer.hidden) return;
   if (e.key==='ArrowRight'){ if (stepNavApi && stepNavApi.next()) return; if (S.i<BOOKS[S.book].lessons.length) go(S.book,S.i+1,1); }
   if (e.key==='ArrowLeft'){ if (stepNavApi && stepNavApi.prev()) return; if (S.i>0) go(S.book,S.i-1,-1); }
 });
@@ -2560,6 +2561,73 @@ function openFocus(){
   focusDlg.hidden = false; focusCard.querySelector('input').focus();
 }
 focusDlg.addEventListener('click', e => { if (e.target===focusDlg) focusDlg.hidden = true; });
+
+/* перенос прогресса: код или файл, без сервера */
+const XFER = 'BITSL1:', LABKEY = 'bit-labcards-v1';
+const xfer = h('div',{class:'quiz',hidden:true}); const xcard = h('div',{class:'card',role:'dialog','aria-modal':'true','aria-label':'Перенос прогресса'});
+xfer.append(xcard); document.body.append(xfer);
+xfer.addEventListener('click', e => { if (e.target===xfer) xfer.hidden = true; });
+const b64 = s => btoa(String.fromCharCode(...new TextEncoder().encode(s)));
+const unb64 = s => new TextDecoder().decode(Uint8Array.from(atob(s), c=>c.charCodeAt(0)));
+function exportCode(){
+  let lab = null; try { lab = JSON.parse(localStorage.getItem(LABKEY)||'null'); } catch(e){}
+  const data = {v:1, at:new Date().toISOString(), S:{done:S.done, pred:S.pred, solved:S.solved, seen:S.seen, step:S.step, plan:S.plan, ui:S.ui, exam:S.exam}, lab};
+  return XFER + b64(JSON.stringify(data));
+}
+function parseCode(txt){
+  txt = String(txt).trim();
+  try { const d = txt.startsWith(XFER) ? JSON.parse(unb64(txt.slice(XFER.length).replace(/\s/g,''))) : JSON.parse(txt);
+    if (d && d.v===1 && d.S && typeof d.S==='object') return d; } catch(e){}
+  return null;
+}
+const countOf = st => ({stamps:Object.values(st.done||{}).filter(Boolean).length, tasks:Object.values(st.solved||{}).filter(Boolean).length});
+// объединение: пройденное складывается, ничего не теряется; настройки берутся из файла
+function mergeIn(d){
+  const I = d.S;
+  for (const [k,v] of Object.entries(I.done||{})) if (v) S.done[k] = true;
+  for (const [k,v] of Object.entries(I.solved||{})) if (v) S.solved[k] = true;
+  for (const [k,v] of Object.entries(I.pred||{})) if (S.pred[k]==null) S.pred[k] = v;
+  for (const [k,v] of Object.entries(I.seen||{})) S.seen[k] = Math.max(S.seen[k]||0, v);
+  S.step = Object.assign({}, I.step||{}, S.step);
+  if (I.plan) S.plan = Object.assign({}, I.plan, S.plan||{});
+  if (I.ui) S.ui = Object.assign(S.ui, I.ui);
+  if (I.exam) S.exam = I.exam;
+  if (d.lab) { try { const cur = JSON.parse(localStorage.getItem(LABKEY)||'{}'); localStorage.setItem(LABKEY, JSON.stringify(Object.assign(cur, d.lab))); } catch(e){} }
+  save(); applyUI();
+}
+function openXfer(){
+  const code = exportCode(), mine = countOf(S), allXP = KEYS.reduce((s,k)=>s+xpOf(k),0);
+  const out = h('textarea',{class:'txt',id:'xferOut',readonly:true,rows:3,style:'width:100%;font-size:12px;resize:vertical'}); out.value = code;
+  const msg = h('p',{class:'fb',role:'status'});
+  const copy = U.btn('Скопировать код', async () => {
+    try { await navigator.clipboard.writeText(code); msg.className='fb ok'; msg.textContent='Код скопирован. Вставь его на другом устройстве в поле ниже.'; }
+    catch(e){ out.focus(); out.select(); msg.className='fb ok'; msg.textContent='Код выделен — нажми Ctrl+C (на телефоне: «Копировать»).'; } }, 'pri');
+  const dl = U.btn('Скачать файл', () => {
+    try { const a = h('a',{href:URL.createObjectURL(new Blob([code],{type:'text/plain'})), download:`прогресс-${BOOKS[S.book].name}-${new Date().toISOString().slice(0,10)}.txt`}); document.body.append(a); a.click(); a.remove(); S.lastExport = Date.now(); save();
+      msg.className='fb ok'; msg.textContent='Файл сохранён в «Загрузки».'; } catch(e){ msg.className='fb no'; msg.textContent='Скачать не вышло — используй «Скопировать код».'; } });
+  const inp = h('textarea',{class:'txt',id:'xferIn',rows:3,placeholder:'вставь сюда код прогресса (начинается с BITSL1:)',style:'width:100%;font-size:12px;resize:vertical'});
+  const file = h('input',{type:'file',id:'xferFile',accept:'.txt,.json,text/plain','aria-label':'Файл прогресса'});
+  const res = h('div',{}); let pending = null;
+  const check = txt => {
+    const d = parseCode(txt); res.replaceChildren();
+    if (!d){ res.append(h('p',{class:'fb no'},'Это не код прогресса. Скопируй его целиком, вместе с началом BITSL1:.')); pending = null; return; }
+    const add = {stamps:Object.entries(d.S.done||{}).filter(([k,v])=>v&&!S.done[k]).length, tasks:Object.entries(d.S.solved||{}).filter(([k,v])=>v&&!S.solved[k]).length};
+    pending = d;
+    res.append(h('p',{style:'margin:8px 0'}, `Код от ${new Date(d.at).toLocaleString('ru-RU',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})}: добавится ${add.stamps} ${plural(add.stamps,'штамп','штампа','штампов')} и ${add.tasks} ${plural(add.tasks,'задача','задачи','задач')}. Твой текущий прогресс не пропадёт — всё объединится.`),
+      U.btn('Применить', ()=>{ const x0 = KEYS.reduce((s,k)=>s+xpOf(k),0); mergeIn(pending); xfer.hidden = true; render(); toast(`<b>Прогресс перенесён</b> +${KEYS.reduce((s,k)=>s+xpOf(k),0)-x0} XP`); }, 'pri'));
+  };
+  inp.addEventListener('input', () => inp.value.trim() ? check(inp.value) : res.replaceChildren());
+  file.addEventListener('change', () => { const f = file.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { inp.value = String(r.result).trim(); check(inp.value); }; r.readAsText(f); });
+  const last = S.lastExport ? new Date(S.lastExport).toLocaleDateString('ru-RU',{day:'numeric',month:'long'}) : 'ещё ни разу';
+  xcard.replaceChildren(
+    h('div',{class:'meta'},'Прогресс хранится в этом браузере'), h('h2',{style:'margin:4px 0 6px'},'Перенести прогресс'),
+    h('p',{style:'margin:0 0 14px;color:var(--ink-soft);font-size:14px'}, `Штампов: ${mine.stamps}, задач: ${mine.tasks}, опыта: ${allXP} XP. Сохраняй код после занятий — если браузер очистит данные, прогресс вернётся за секунду. Последнее сохранение: ${last}.`),
+    h('h3',{style:'margin-top:0'},'1. Сохранить'), out, h('div',{class:'row',style:'margin-top:8px'}, copy, dl), msg,
+    h('h3',{},'2. Восстановить на другом устройстве'), inp, h('div',{class:'row',style:'margin-top:8px'}, h('label',{for:'xferFile',style:'font-size:14px;color:var(--ink-soft)'},'или файл:'), file), res,
+    h('div',{class:'row',style:'margin-top:16px;justify-content:flex-end'}, U.btn('Закрыть', ()=>xfer.hidden=true)));
+  copy.addEventListener('click', ()=>{ S.lastExport = Date.now(); save(); });
+  xfer.hidden = false; copy.focus();
+}
 
 /* тема */
 function applyTheme(){ if (S.theme) document.documentElement.dataset.theme = S.theme; else delete document.documentElement.dataset.theme; draw && draw(); }
