@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>body{margin:0}</style>
 <title>Бит — вычислительные машины и системы</title>
-<meta name="description" content="Интерактивный учебник по ВМиС: системы счисления, коды, DOS, ассемблер 8086, видеорежимы. 10 глав, эмуляторы, задачи с проверкой.">
+<meta name="description" content="Интерактивный учебник по ВМиС: числа, архитектура, ассемблер 8086, прерывания, DOS, видеорежимы и защита лабораторных 1–4.">
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
 /* cyrillic */
@@ -118,175 +118,219 @@
 }
 </style>
 <style>
-/* Layout: открытая книга на школьной парте. Слева — печатная страница учебника, справа — тетрадь в клетку с опытом. Снизу — панель листания. */
+/* Layout: раскрытый учебник в тканевом переплёте на столе под лампой. Слева — печатная страница с теорией,
+   справа — тетрадь в клетку с опытом. Глава открывается заставкой с крупным номером; снизу — панель листания. */
 :root{
-  --desk:#b3bec6; --desk-2:#a3afb8;
-  --paper:#fbfaf6; --paper-2:#f1efe8; --edge:#dcd8cc;
-  --ink:#22252b; --ink-soft:#5b616b; --rule:#d3dbe5;
-  --pen:#1f4fa8; --pen-wash:rgba(31,79,168,.11);
-  --stamp:#6a3d9a; --stamp-wash:rgba(106,61,154,.10);
-  --good:#2b7443; --bad:#b0302a; --glow:#d99a00;
-  --bar:rgba(251,250,246,.92); --shadow:rgba(30,40,50,.28);
-  --cloth:#2d5a49;
+  --desk:#a9b6bf; --desk-2:#8e9ca6; --lamp:rgba(255,248,228,.75);
+  --paper:#fcfbf7; --paper-2:#f2f0e9; --edge:#dcd8cc;
+  --ink:#1f232a; --ink-soft:#5a616c; --rule:#d6dde6;
+  --pen:#1f4fa8; --pen-wash:rgba(31,79,168,.10);
+  --stamp:#6a3d9a; --stamp-wash:rgba(106,61,154,.09);
+  --good:#2b7443; --bad:#b0302a; --glow:#d99a00; --foil:#b8892b;
+  --bar:rgba(252,251,247,.92); --shadow:rgba(28,36,46,.30);
+  --cloth:#2d5a49; --cloth-2:#24493b;
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .055 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   --f-display:"Alegreya", "Georgia", serif;
   --f-body:"Literata", "PT Serif", "Georgia", serif;
   --f-hand:"Caveat", "Segoe Print", cursive;
   --f-mono:"JetBrains Mono", "Consolas", monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --desk:#101418; --desk-2:#161b21;
-  --paper:#1d2228; --paper-2:#232931; --edge:#2c333c;
-  --ink:#e3e6ea; --ink-soft:#9ba4af; --rule:#2b333d;
-  --pen:#8fb0ff; --pen-wash:rgba(143,176,255,.13);
-  --stamp:#bb94ff; --stamp-wash:rgba(187,148,255,.12);
-  --good:#6fca8c; --bad:#ff7d70; --glow:#ffc94a;
-  --bar:rgba(29,34,40,.94); --shadow:rgba(0,0,0,.55);
+  --desk:#0e1216; --desk-2:#070a0d; --lamp:rgba(255,196,110,.10);
+  --paper:#1c2127; --paper-2:#232931; --edge:#2e353e;
+  --ink:#e4e7eb; --ink-soft:#9da6b1; --rule:#29313b;
+  --pen:#8fb0ff; --pen-wash:rgba(143,176,255,.12);
+  --stamp:#bb94ff; --stamp-wash:rgba(187,148,255,.11);
+  --good:#6fca8c; --bad:#ff7d70; --glow:#ffc94a; --foil:#e2b964;
+  --bar:rgba(28,33,39,.94); --shadow:rgba(0,0,0,.6);
   color-scheme:dark;
 }}
 :root[data-theme="dark"]{
-  --desk:#101418; --desk-2:#161b21;
-  --paper:#1d2228; --paper-2:#232931; --edge:#2c333c;
-  --ink:#e3e6ea; --ink-soft:#9ba4af; --rule:#2b333d;
-  --pen:#8fb0ff; --pen-wash:rgba(143,176,255,.13);
-  --stamp:#bb94ff; --stamp-wash:rgba(187,148,255,.12);
-  --good:#6fca8c; --bad:#ff7d70; --glow:#ffc94a;
-  --bar:rgba(29,34,40,.94); --shadow:rgba(0,0,0,.55);
+  --desk:#0e1216; --desk-2:#070a0d; --lamp:rgba(255,196,110,.10);
+  --paper:#1c2127; --paper-2:#232931; --edge:#2e353e;
+  --ink:#e4e7eb; --ink-soft:#9da6b1; --rule:#29313b;
+  --pen:#8fb0ff; --pen-wash:rgba(143,176,255,.12);
+  --stamp:#bb94ff; --stamp-wash:rgba(187,148,255,.11);
+  --good:#6fca8c; --bad:#ff7d70; --glow:#ffc94a; --foil:#e2b964;
+  --bar:rgba(28,33,39,.94); --shadow:rgba(0,0,0,.6);
   color-scheme:dark;
 }
-[data-book="tv"]{--cloth:#2d5a49}
-[data-book="vms"]{--cloth:#2a4472}
+[data-book="tv"]{--cloth:#2d5a49;--cloth-2:#22463a}
+[data-book="vms"]{--cloth:#2a4472;--cloth-2:#1f3558}
 
 *{box-sizing:border-box}
 html,body{min-height:100%}
 body{
-  background:radial-gradient(120% 80% at 50% 0%, var(--desk) 0%, var(--desk-2) 100%) fixed, var(--desk);
-  color:var(--ink); font:16px/1.6 var(--f-body);
+  background:
+    radial-gradient(70% 55% at 50% 8%, var(--lamp) 0%, transparent 70%) fixed,
+    radial-gradient(130% 90% at 50% 0%, var(--desk) 0%, var(--desk-2) 100%) fixed,
+    var(--desk);
+  color:var(--ink); font:16px/1.62 var(--f-body);
   padding-left:max(16px, env(safe-area-inset-left, 0px));
   padding-right:max(16px, env(safe-area-inset-right, 0px));
-  padding-block:0 96px;
+  padding-block:0 110px;
 }
+body::after{content:"";position:fixed;inset:0;pointer-events:none;background:var(--grain);opacity:.8;z-index:0}
 button,input,select{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--pen);outline-offset:2px}
 a{color:var(--pen)}
+::selection{background:color-mix(in srgb,var(--glow) 40%,transparent)}
 
-/* ——— верх: корешки книг ——— */
-.top{max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;padding-top:18px}
-.brand{font:800 26px/1 var(--f-display);letter-spacing:.01em;color:var(--ink)}
+/* ——— шапка ——— */
+.top{position:relative;z-index:1;max-width:1260px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px;padding-top:20px}
+.brand{font:800 28px/1 var(--f-display);letter-spacing:.005em;color:var(--ink)}
 .brand i{font-weight:500;color:var(--ink-soft)}
-.spines{display:flex;gap:8px;flex-wrap:wrap}
+.spines{display:flex;gap:6px;flex-wrap:wrap}
 .spine{
-  border:0;cursor:pointer;padding:8px 14px 8px 12px;border-radius:4px 4px 0 0;
-  background:var(--cloth);color:#f4f1e8;font:600 15px/1.2 var(--f-display);letter-spacing:.04em;
-  display:flex;gap:10px;align-items:center;opacity:.6;transform:translateY(4px);transition:.2s;
-  box-shadow:inset -3px 0 0 rgba(0,0,0,.18), inset 3px 0 0 rgba(255,255,255,.08);
+  border:0;cursor:pointer;padding:9px 16px 9px 14px;border-radius:5px 5px 0 0;
+  background:linear-gradient(90deg,var(--cloth-2),var(--cloth) 30%,var(--cloth) 70%,var(--cloth-2));
+  color:#f6f1e3;font:700 15px/1.2 var(--f-display);letter-spacing:.12em;
+  display:flex;gap:10px;align-items:center;opacity:.55;transform:translateY(5px);transition:.25s;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12)
 }
+.spine:hover{opacity:.85;transform:translateY(2px)}
 .spine[aria-pressed="true"]{opacity:1;transform:none}
-.spine small{font:500 12px var(--f-mono);opacity:.85}
+.spine small{font:500 12px var(--f-mono);letter-spacing:0;opacity:.85}
+.rank{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--ink-soft);margin-left:auto}
+.rank b{font:700 16px var(--f-display);color:var(--ink)}
+.rk-l{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase}
+.rk-bar{display:inline-block;width:130px;height:9px;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden;background:var(--paper)}
+.rk-bar i{display:block;height:100%;background:repeating-linear-gradient(-45deg,var(--stamp) 0 4px,color-mix(in srgb,var(--stamp) 65%,var(--paper)) 4px 8px);transition:width .8s cubic-bezier(.2,.9,.3,1)}
+.rk-xp{font:500 12px var(--f-mono)}
 
 /* ——— книга ——— */
-.desk{max-width:1240px;margin:0 auto;overflow-x:clip}
+.desk{position:relative;z-index:1;max-width:1260px;margin:0 auto;overflow-x:clip;padding-bottom:70px}
 .book{
-  position:relative;background:var(--cloth);border-radius:6px;padding:10px;
-  box-shadow:0 30px 60px -20px var(--shadow), 0 8px 18px -8px var(--shadow);
+  position:relative;border-radius:8px;padding:12px;
+  background:
+    repeating-linear-gradient(45deg,rgba(255,255,255,.035) 0 2px,transparent 2px 4px),
+    repeating-linear-gradient(-45deg,rgba(0,0,0,.06) 0 2px,transparent 2px 4px),
+    linear-gradient(var(--cloth),var(--cloth-2));
+  box-shadow:0 40px 70px -28px var(--shadow), 0 10px 22px -10px var(--shadow), inset 0 0 0 1px rgba(255,255,255,.06);
 }
-.spread{position:relative;display:grid;grid-template-columns:1fr 1fr;perspective:2400px;min-height:640px}
-.page{
-  position:relative;min-width:0;background:var(--paper);padding:34px 40px 48px;
-}
-.page.left{border-radius:3px 0 0 3px;box-shadow:inset -26px 0 30px -26px var(--shadow)}
-.page.right{
-  border-radius:0 3px 3px 0;box-shadow:inset 26px 0 30px -26px var(--shadow);
-  background-color:var(--paper);
-  background-image:linear-gradient(var(--rule) 1px, transparent 1px),linear-gradient(90deg, var(--rule) 1px, transparent 1px);
-  background-size:20px 20px;background-position:-1px -1px;
-}
-.folio{position:absolute;bottom:16px;font:500 13px var(--f-mono);color:var(--ink-soft)}
-.left .folio{left:40px}.right .folio{right:40px}
-.leaf{
-  position:absolute;top:0;bottom:0;width:50%;pointer-events:none;display:none;
-  background:linear-gradient(90deg,var(--paper-2),var(--paper));
-  backface-visibility:visible;z-index:5;border-radius:0 3px 3px 0;
-}
+.ribbon{position:absolute;left:calc(50% - 9px);bottom:-58px;width:18px;height:80px;z-index:6;pointer-events:none;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--stamp) 80%,#000),var(--stamp) 45%,color-mix(in srgb,var(--stamp) 85%,#000));
+  clip-path:polygon(0 0,100% 0,100% 100%,50% 84%,0 100%);box-shadow:0 6px 10px var(--shadow)}
+.spread{position:relative;display:grid;grid-template-columns:1fr 1fr;perspective:2400px;min-height:680px}
+.spread::after{content:"";position:absolute;top:0;bottom:0;left:calc(50% - 28px);width:56px;pointer-events:none;z-index:2;
+  background:linear-gradient(90deg,transparent,rgba(0,0,0,.10) 42%,rgba(0,0,0,.18) 50%,rgba(0,0,0,.10) 58%,transparent)}
+.page{position:relative;min-width:0;padding:38px 44px 56px;background-color:var(--paper)}
+.page.left{border-radius:4px 0 0 4px;background-image:var(--grain);
+  box-shadow:-1px 1px 0 var(--edge),-2px 2px 0 var(--paper-2),-3px 3px 0 var(--edge),-4px 4px 0 var(--paper-2),-5px 5px 0 var(--edge)}
+.page.right{border-radius:0 4px 4px 0;
+  background-image:var(--grain),linear-gradient(var(--rule) 1px, transparent 1px),linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+  background-size:auto,20px 20px,20px 20px;background-position:0 0,-1px -1px,-1px -1px;
+  box-shadow:1px 1px 0 var(--edge),2px 2px 0 var(--paper-2),3px 3px 0 var(--edge),4px 4px 0 var(--paper-2),5px 5px 0 var(--edge)}
+.page.right::before{content:"";position:absolute;top:0;bottom:0;left:52px;width:1.5px;background:color-mix(in srgb,var(--bad) 35%,transparent)}
+.folio{position:absolute;bottom:18px;font:500 13px var(--f-mono);color:var(--ink-soft)}
+.left .folio{left:44px}.right .folio{right:44px}
+.leaf{position:absolute;top:0;bottom:0;width:50%;pointer-events:none;display:none;background:linear-gradient(90deg,var(--paper-2),var(--paper));backface-visibility:visible;z-index:5;border-radius:0 4px 4px 0}
 .leaf.fwd{display:block;left:50%;transform-origin:left center;animation:turnF .62s cubic-bezier(.4,.1,.3,1) forwards}
-.leaf.back{display:block;left:0;transform-origin:right center;border-radius:3px 0 0 3px;animation:turnB .62s cubic-bezier(.4,.1,.3,1) forwards}
-@keyframes turnF{0%{transform:rotateY(0);box-shadow:0 0 0 var(--shadow)}50%{box-shadow:-30px 0 40px -10px var(--shadow)}100%{transform:rotateY(-180deg);box-shadow:0 0 0 var(--shadow)}}
+.leaf.back{display:block;left:0;transform-origin:right center;border-radius:4px 0 0 4px;animation:turnB .62s cubic-bezier(.4,.1,.3,1) forwards}
+@keyframes turnF{0%{transform:rotateY(0)}50%{box-shadow:-30px 0 40px -10px var(--shadow)}100%{transform:rotateY(-180deg)}}
 @keyframes turnB{0%{transform:rotateY(0)}50%{box-shadow:30px 0 40px -10px var(--shadow)}100%{transform:rotateY(180deg)}}
+.page > *{position:relative;z-index:1}
+.reveal{animation:rise .5s cubic-bezier(.2,.8,.3,1) both}
+@keyframes rise{from{transform:translateY(8px);opacity:.001}}
 
 /* ——— типографика страниц ——— */
-.runhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:500 12px/1.4 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);border-bottom:1px solid var(--edge);padding-bottom:8px;margin-bottom:18px}
+.runhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:500 11.5px/1.4 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);border-bottom:1px solid var(--edge);padding-bottom:9px;margin-bottom:20px}
 h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
-h2{font-weight:800;font-size:34px;line-height:1.08;margin-bottom:14px}
-h2 .no{color:var(--pen);font-style:italic;font-weight:700;margin-right:.25em}
-h3{font-weight:700;font-size:19px;margin:18px 0 6px}
-.theory p{margin:0 0 10px;max-width:62ch}
-.theory ul{margin:0 0 10px;padding-left:20px}
-.theory li{margin-bottom:3px}
+.opener{position:relative;margin-bottom:18px;padding-right:96px;min-height:96px}
+.bignum{position:absolute;right:-6px;top:-18px;font:800 132px/1 var(--f-display);color:transparent;-webkit-text-stroke:1.5px color-mix(in srgb,var(--pen) 55%,transparent);letter-spacing:-.04em;pointer-events:none;user-select:none}
+.part-lbl{font:600 12px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--stamp);margin-bottom:6px}
+h2{font-weight:800;font-size:36px;line-height:1.06}
+h3{font-weight:700;font-size:20px;margin:22px 0 8px;display:flex;align-items:baseline;gap:8px}
+.theory h3::before{content:"§";font:700 16px var(--f-display);color:var(--pen)}
+.theory > p:first-of-type::first-letter{float:left;font:800 3.4em/.82 var(--f-display);color:var(--pen);margin:.06em .1em 0 0}
+.theory p{margin:0 0 11px;max-width:64ch}
+.theory ul,.theory ol{margin:0 0 11px;padding-left:22px}
+.theory li{margin-bottom:4px}
+.theory li::marker{color:var(--pen)}
 .theory b{font-weight:600}
-.f{ /* формула в рамке */
-  margin:12px 0;padding:10px 14px;border:1.5px solid var(--ink);border-radius:2px;
-  font-family:var(--f-body);font-style:italic;font-size:18px;line-height:1.9;overflow-x:auto;background:var(--paper)
+.f{
+  position:relative;margin:16px 0 14px;padding:24px 16px 12px;border:1.5px solid var(--ink);border-left:5px solid var(--pen);border-radius:3px;
+  font-family:var(--f-body);font-style:italic;font-size:18px;line-height:1.95;overflow-x:auto;
+  background:linear-gradient(var(--pen-wash),var(--pen-wash)),var(--paper)
 }
-.f small{font-style:normal;font-size:13px;color:var(--ink-soft);display:block;line-height:1.4}
+.f::before{content:"формула";position:absolute;top:5px;left:16px;font:600 10.5px var(--f-mono);line-height:1.2;font-style:normal;letter-spacing:.14em;text-transform:uppercase;color:var(--pen)}
+.f small{font-style:normal;font-size:13px;color:var(--ink-soft);display:block;line-height:1.45;margin-top:4px}
 .fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .15em;line-height:1.15}
 .fr>span:first-child{border-bottom:1.2px solid currentColor;padding:0 .2em}
 .fr>span{padding:0 .2em}
 code,.mono{font-family:var(--f-mono);font-size:.88em}
-pre.asm{font:13px/1.55 var(--f-mono);background:var(--paper-2);border-left:3px solid var(--pen);padding:10px 12px;overflow-x:auto;margin:10px 0;white-space:pre}
-.tbl{overflow-x:auto;margin:8px 0}
-.tbl table{border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
-.tbl th,.tbl td{border:1px solid var(--edge);padding:4px 8px;text-align:left}
+pre.asm{font:13px/1.55 var(--f-mono);background:var(--paper-2);border-left:3px solid var(--pen);padding:10px 12px;overflow-x:auto;margin:10px 0;white-space:pre;border-radius:0 3px 3px 0}
+.tbl{overflow-x:auto;margin:10px 0}
+.tbl table{border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums;background:var(--paper)}
+.tbl th,.tbl td{border:1px solid var(--edge);padding:5px 9px;text-align:left;vertical-align:top}
 .tbl th{font-weight:600;background:var(--paper-2)}
+.tbl tr:nth-child(even) td{background:color-mix(in srgb,var(--paper-2) 45%,transparent)}
 
-.lbl{font:700 22px/1 var(--f-hand);color:var(--pen);margin-bottom:6px}
-.predict{margin-top:20px;padding:14px 16px;border:1.5px dashed var(--ink-soft);border-radius:3px}
-.predict p{margin:0 0 8px}
+.lbl{font:700 23px/1 var(--f-hand);color:var(--pen);margin-bottom:8px}
+.predict{margin-top:24px;padding:16px 18px;border:1.5px dashed var(--ink-soft);border-radius:4px;background:var(--paper)}
+.predict p{margin:0 0 10px}
 .opts{display:flex;flex-direction:column;gap:6px}
-.opt{display:flex;gap:10px;align-items:flex-start;cursor:pointer;padding:4px 6px;border-radius:3px}
+.opt{display:flex;gap:10px;align-items:flex-start;cursor:pointer;padding:6px 8px;border-radius:4px;border:1px solid transparent;transition:background .15s}
 .opt:hover{background:var(--pen-wash)}
 .opt input{margin-top:6px;accent-color:var(--pen)}
-.opt.ok{background:color-mix(in srgb,var(--good) 14%,transparent)}
-.opt.no{background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.opt.ok{background:color-mix(in srgb,var(--good) 14%,transparent);border-color:color-mix(in srgb,var(--good) 40%,transparent)}
+.opt.no{background:color-mix(in srgb,var(--bad) 11%,transparent);border-color:color-mix(in srgb,var(--bad) 35%,transparent)}
 
-.flapbtn{
-  margin-top:16px;width:100%;cursor:pointer;text-align:left;border:1px solid var(--edge);
-  background:var(--paper-2);padding:14px 16px;border-radius:2px;position:relative;
-  box-shadow:0 6px 10px -6px var(--shadow);transition:transform .25s;
-}
+.flapbtn{margin-top:16px;width:100%;cursor:pointer;text-align:left;border:1px solid var(--edge);background:var(--paper-2);padding:15px 18px;border-radius:3px;position:relative;box-shadow:0 8px 12px -8px var(--shadow);transition:transform .25s}
+.flapbtn::after{content:"↥";position:absolute;right:16px;top:50%;transform:translateY(-50%);font:700 22px var(--f-display);color:var(--ink-soft)}
 .flapbtn:hover{transform:translateY(-2px) rotate(-.3deg)}
-.flapbtn b{font:700 22px/1 var(--f-hand);color:var(--ink)}
+.flapbtn b{font:700 23px/1 var(--f-hand);color:var(--ink)}
 .flapbtn span{display:block;font-size:13px;color:var(--ink-soft)}
 .flapbtn[aria-expanded="true"]{transform:perspective(600px) rotateX(8deg);transform-origin:top}
-.flapbody{padding:14px 16px;border:1px solid var(--edge);border-top:0;background:var(--paper)}
-.flapbody p{margin:0 0 8px}
+.flapbody{padding:16px 18px;border:1px solid var(--edge);border-top:0;background:var(--paper)}
+.flapbody p{margin:0 0 9px}
+
+/* итоги и вопросы к экзамену */
+.sum{margin-top:26px;padding:18px 20px 14px;border-radius:4px;background:linear-gradient(var(--stamp-wash),var(--stamp-wash)),var(--paper);border:1.5px solid color-mix(in srgb,var(--stamp) 50%,transparent)}
+.sum .lbl{color:var(--stamp)}
+.sum ul{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.sum li{display:grid;grid-template-columns:22px 1fr;gap:6px;align-items:baseline}
+.sum li::before{content:"✓";font:700 15px var(--f-mono);color:var(--stamp)}
+.examq{margin-top:20px}
+.examq details{border-top:1px solid var(--edge);padding:9px 0}
+.examq details:last-child{border-bottom:1px solid var(--edge)}
+.examq summary{cursor:pointer;font-weight:600;list-style:none;display:grid;grid-template-columns:26px 1fr;gap:4px}
+.examq summary::-webkit-details-marker{display:none}
+.examq summary::before{content:"?";display:grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--pen);font:700 12px var(--f-mono);color:var(--pen);margin-top:3px}
+.examq details[open] summary::before{content:"!";background:var(--pen);color:var(--paper)}
+.examq .ans{margin:8px 0 2px 30px;color:var(--ink);font-size:15px}
 
 /* ——— правая страница: опыт ——— */
-.fig{display:flex;flex-direction:column;gap:10px}
+.fig{display:flex;flex-direction:column;gap:12px;padding:14px;background:var(--paper);border:1px solid var(--edge);border-radius:4px;box-shadow:0 14px 24px -20px var(--shadow)}
 canvas.ink{width:100%;display:block;background:transparent;touch-action:manipulation}
-.cap{font:italic 14px/1.4 var(--f-body);color:var(--ink-soft);margin:6px 0 0}
-.cap b{font-style:normal;font-family:var(--f-mono);font-size:12px;letter-spacing:.04em}
-.try{font:600 21px/1.25 var(--f-hand);color:var(--pen);margin:10px 0 0}
-.ctls{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px 18px}
-.ctl{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;font-size:14px}
+.cap{font:italic 14px/1.45 var(--f-body);color:var(--ink-soft);margin:10px 0 0}
+.cap b{font-style:normal;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.06em;color:var(--pen)}
+.try{font:600 22px/1.25 var(--f-hand);color:var(--pen);margin:12px 0 0}
+.ctls{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px 20px}
+.ctl{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;font-size:14px}
 .ctl span{color:var(--ink-soft)}
-.ctl input[type=range]{width:100%;min-width:0;accent-color:var(--pen)}
-.ctl output{font:600 13px var(--f-mono);min-width:4ch;text-align:right}
+.ctl output{font:600 13px var(--f-mono);min-width:4ch;text-align:right;color:var(--pen)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;min-width:0;height:22px;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:3px;background:linear-gradient(90deg,var(--ink),var(--ink));border-radius:2px}
+input[type=range]::-moz-range-track{height:3px;background:var(--ink);border-radius:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;margin-top:-7.5px;border-radius:50%;background:var(--paper);border:2.5px solid var(--pen);box-shadow:0 2px 5px var(--shadow);transition:transform .15s}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--paper);border:2.5px solid var(--pen)}
+input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.15)}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.btn{
-  cursor:pointer;border:1.5px solid var(--ink);background:var(--paper);padding:5px 12px;border-radius:2px;
-  font-size:14px;box-shadow:2px 2px 0 var(--ink);transition:transform .1s, box-shadow .1s
-}
+.btn{cursor:pointer;border:1.5px solid var(--ink);background:var(--paper);padding:6px 13px;border-radius:3px;font-size:14px;box-shadow:2px 2px 0 var(--ink);transition:transform .1s, box-shadow .1s, background .15s}
 .btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink)}
 .btn:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--ink)}
-.btn.pri{background:var(--pen);color:var(--paper);border-color:var(--pen);box-shadow:2px 2px 0 var(--ink)}
+.btn.pri{background:var(--pen);color:var(--paper);border-color:var(--pen);box-shadow:2px 2px 0 var(--ink);font-weight:600}
 .btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
-select.sel,input.txt{border:1.5px solid var(--ink-soft);background:var(--paper);padding:5px 8px;border-radius:2px;font-size:14px;min-width:0;max-width:100%}
+select.sel,input.txt{border:1.5px solid var(--ink-soft);background:var(--paper);padding:6px 9px;border-radius:3px;font-size:14px;min-width:0;max-width:100%}
 input.txt{font-family:var(--f-mono)}
-.readout{font:14px/1.5 var(--f-mono);background:var(--paper);border:1px solid var(--edge);padding:8px 10px;overflow-x:auto;font-variant-numeric:tabular-nums}
+input.txt:focus,select.sel:focus{border-color:var(--pen);outline:none;box-shadow:0 0 0 3px var(--pen-wash)}
+.readout{font:14px/1.55 var(--f-mono);background:var(--paper-2);border:1px solid var(--edge);border-radius:3px;padding:9px 11px;overflow-x:auto;font-variant-numeric:tabular-nums}
 .readout b{color:var(--pen);font-weight:600}
 .readout .hot{color:var(--glow);font-weight:600}
 .readout .good{color:var(--good)}.readout .bad{color:var(--bad)}
 
-.challenge{margin-top:22px;padding:14px 16px;background:var(--paper);border:1.5px solid var(--stamp);border-radius:3px;position:relative}
+.challenge{margin-top:24px;padding:16px 18px;background:var(--paper);border:1.5px solid var(--stamp);border-radius:4px;position:relative;box-shadow:4px 4px 0 var(--stamp-wash)}
 .challenge .lbl{color:var(--stamp)}
 .challenge p{margin:0 0 10px}
 .challenge form{display:flex;gap:8px;flex-wrap:wrap}
@@ -294,85 +338,106 @@ input.txt{font-family:var(--f-mono)}
 .fb{margin:8px 0 0;font-size:14px;min-height:1.4em}
 .fb.ok{color:var(--good)}.fb.no{color:var(--bad)}
 details.hint{margin-top:6px;font-size:14px;color:var(--ink-soft)}
-details.hint summary{cursor:pointer;font:600 18px var(--f-hand);color:var(--ink-soft)}
-.stampslot{position:absolute;right:-6px;top:-34px;width:104px;height:104px;pointer-events:none}
-.stamp{width:100%;height:100%;color:var(--stamp);transform:rotate(-14deg);opacity:.9}
+details.hint summary{cursor:pointer;font:600 19px var(--f-hand);color:var(--ink-soft)}
+.stampslot{position:absolute;right:-8px;top:-38px;width:108px;height:108px;pointer-events:none}
+.stamp{width:100%;height:100%;color:var(--stamp);transform:rotate(-14deg);opacity:.9;mix-blend-mode:multiply}
+:root[data-theme="dark"] .stamp{mix-blend-mode:normal}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .stamp{mix-blend-mode:normal}}
 .stamp.new{animation:thump .5s cubic-bezier(.2,1.6,.4,1)}
 @keyframes thump{0%{transform:rotate(-14deg) scale(2.2);opacity:0}100%{transform:rotate(-14deg) scale(1);opacity:.9}}
+.more{margin-top:20px;padding:16px 18px;background:var(--paper);border:1.5px solid var(--ink-soft);border-radius:4px;display:grid;gap:18px}
+.more .lbl{margin:0}
+.mq p{margin:0 0 8px}
+.mq form{display:flex;gap:8px;flex-wrap:wrap}
+.mq input{flex:1 1 140px}
+.mn{font:600 12.5px var(--f-mono);color:var(--paper);background:var(--pen);padding:1px 7px;border-radius:999px;white-space:nowrap;margin-right:4px}
+.mn.done{background:var(--good)}
+.mn.done::after{content:" ✓"}
 
 /* ——— обложка ——— */
-.cover h1{font-weight:800;font-size:clamp(48px,7vw,84px);line-height:.95;letter-spacing:-.01em}
-.cover .sub{font:italic 500 22px/1.3 var(--f-display);color:var(--ink-soft);margin:10px 0 20px}
-.steps{list-style:none;padding:0;margin:18px 0;display:grid;gap:8px;counter-reset:s}
-.steps li{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:baseline;counter-increment:s}
-.steps li::before{content:counter(s);font:700 26px/1 var(--f-hand);color:var(--pen);text-align:center}
-.toclist{list-style:none;padding:0;margin:0;display:grid;gap:2px}
-.toclist button{width:100%;display:grid;grid-template-columns:2.2em 1fr auto;gap:8px;align-items:baseline;text-align:left;cursor:pointer;background:none;border:0;padding:6px 4px;border-bottom:1px dotted var(--ink-soft)}
+.cover .eyebrow{font:600 12px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--foil)}
+.cover h1{font-weight:800;font-size:clamp(56px,8vw,104px);line-height:.92;letter-spacing:-.015em;margin:8px 0 0}
+.cover .sub{font:italic 500 23px/1.3 var(--f-display);color:var(--ink-soft);margin:10px 0 18px}
+.cover .rule{height:10px;margin:0 0 18px;background:radial-gradient(circle,var(--foil) 2px,transparent 2.5px) center/14px 10px repeat-x;opacity:.7}
+.medal{display:grid;grid-template-columns:76px 1fr;gap:16px;align-items:center;padding:14px 16px;margin:4px 0 18px;border:1.5px solid var(--ink);border-radius:6px;background:var(--paper-2)}
+.medal svg{width:76px;height:76px}
+.medal .mt{font:600 11px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+.medal .mn2{font:800 24px/1.1 var(--f-display);color:var(--ink);margin:2px 0 6px}
+.medal .rk-bar{width:100%}
+.medal .mx{font:500 12px var(--f-mono);color:var(--ink-soft);margin-top:5px}
+.steps{list-style:none;padding:0;margin:14px 0;display:grid;gap:8px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:baseline;counter-increment:s;font-size:15px}
+.steps li::before{content:counter(s);font:700 24px/1 var(--f-hand);color:var(--pen);text-align:center}
+.cover-art{margin:6px 0 16px}
+.cover-art .cap{margin-top:6px}
+.partblk{margin-bottom:18px}
+.parthead{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:baseline;margin-bottom:6px}
+.parthead .pr{font:800 22px var(--f-display);color:var(--stamp)}
+.parthead .pt{font:700 17px var(--f-display)}
+.parthead .pc{font:500 12px var(--f-mono);color:var(--ink-soft)}
+.pbar{height:4px;border-radius:2px;background:var(--edge);margin-bottom:6px;overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--stamp)}
+.toclist{list-style:none;padding:0;margin:0;display:grid;gap:0}
+.toclist button{width:100%;display:grid;grid-template-columns:2.2em 1fr auto;gap:8px;align-items:center;text-align:left;cursor:pointer;background:none;border:0;padding:7px 6px;border-bottom:1px dotted color-mix(in srgb,var(--ink-soft) 60%,transparent);border-radius:3px;transition:background .15s}
 .toclist button:hover{background:var(--pen-wash)}
 .toclist .n{font:700 18px var(--f-display);color:var(--pen)}
 .toclist .s{font-size:12px;color:var(--ink-soft)}
-.toclist .st{font:700 13px var(--f-mono);color:var(--stamp)}
-.exam{margin-top:18px;padding:12px 14px;border:1.5px solid var(--ink);display:grid;gap:8px}
-.exam .big{font:800 40px/1 var(--f-display)}
-.exam label{font-size:14px;color:var(--ink-soft);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chips{display:flex;gap:4px;align-items:center;white-space:nowrap}
+.chip-st{font-size:15px;color:var(--edge)}
+.chip-st.on{color:var(--stamp)}
+.dot{width:7px;height:7px;border-radius:50%;border:1.5px solid var(--ink-soft)}
+.dot.on{background:var(--good);border-color:var(--good)}
+.exam{margin-top:20px;padding:14px 16px;border:1.5px solid var(--ink);border-radius:4px;display:grid;gap:8px;background:var(--paper)}
+.exam .big{font:800 42px/1 var(--f-display)}
+.exam label:not(.ctl){font-size:14px;color:var(--ink-soft);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.planner{gap:12px}
+.planner .ctl[hidden]{display:none}
+.pl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.pl-grid > div{border:1px solid var(--edge);border-radius:4px;padding:8px 10px;background:var(--paper-2);display:grid;gap:1px;min-width:0}
+.pl-grid span{font:600 10.5px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+.pl-grid b{font:800 21px/1.15 var(--f-display);color:var(--ink)}
+.pl-grid small{font-size:12px;color:var(--ink-soft);line-height:1.3}
+.pl-verdict{padding:10px 12px;border-radius:4px;font-weight:600;border:1.5px solid}
+.pl-verdict.ok{color:var(--good);border-color:color-mix(in srgb,var(--good) 50%,transparent);background:color-mix(in srgb,var(--good) 9%,transparent)}
+.pl-verdict.no{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 50%,transparent);background:color-mix(in srgb,var(--bad) 8%,transparent)}
+.pl-plan table{width:100%}
+.pl-plan tr.more-row{display:none}
+.pl-plan table.all tr.more-row{display:table-row}
+.pl-plan td:first-child{white-space:nowrap;font-family:var(--f-mono);font-size:12.5px}
 
 /* ——— нижняя панель ——— */
-.bar{
-  position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom, 0px));z-index:20;
-  display:flex;align-items:center;gap:4px;padding:6px;border-radius:999px;background:var(--bar);
-  box-shadow:0 10px 30px -8px var(--shadow);backdrop-filter:blur(8px);max-width:calc(100% - 24px);border:1px solid var(--edge)
-}
+.bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom, 0px));z-index:20;display:flex;align-items:center;gap:2px;padding:6px;border-radius:999px;background:var(--bar);box-shadow:0 12px 32px -8px var(--shadow);backdrop-filter:blur(10px);max-width:calc(100% - 24px);border:1px solid var(--edge);overflow:hidden}
+.bar .prog{position:absolute;left:0;bottom:0;height:3px;background:var(--stamp);transition:width .6s}
 .bar button{border:0;background:none;cursor:pointer;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none}
 .bar button:hover{background:var(--pen-wash)}
 .bar button:disabled{opacity:.3;cursor:default;background:none}
 .bar svg{width:20px;height:20px;stroke:var(--ink);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.bar .ttl{min-width:0;flex:1 1 auto;padding:0 8px;font:600 15px/1.2 var(--f-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:min(360px,46vw)}
+.bar .ttl{min-width:0;flex:1 1 auto;padding:0 8px;font:600 15px/1.2 var(--f-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:min(360px,40vw)}
 .bar .ttl small{font:500 12px var(--f-mono);color:var(--pen);margin-right:6px}
 
-/* ——— оглавление и тренажёр ——— */
+/* ——— оглавление, тренажёр, шпаргалка ——— */
 .drawer{position:fixed;inset:0;z-index:30;background:color-mix(in srgb,var(--desk) 60%,transparent);display:flex;justify-content:flex-start}
-.drawer .panel{
-  width:min(420px,100%);height:100%;overflow-y:auto;background:var(--paper);
-  padding:calc(20px + env(safe-area-inset-top, 0px)) 20px calc(20px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
-  box-shadow:10px 0 30px -10px var(--shadow)
-}
+.drawer .panel{width:min(440px,100%);height:100%;overflow-y:auto;background:var(--paper);padding:calc(20px + env(safe-area-inset-top, 0px)) 20px calc(20px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));box-shadow:10px 0 30px -10px var(--shadow)}
 .drawer h3{margin:18px 0 8px}
 .drawer .close{float:right}
 .quiz{position:fixed;inset:0;z-index:30;background:color-mix(in srgb,var(--desk) 70%,transparent);display:grid;place-items:center;padding:16px}
-.quiz .card{
-  width:min(560px,100%);max-height:100%;overflow-y:auto;background:var(--paper);padding:24px;border-radius:3px;box-shadow:0 20px 50px -10px var(--shadow);
-  background-image:linear-gradient(var(--rule) 1px, transparent 1px),linear-gradient(90deg, var(--rule) 1px, transparent 1px);background-size:20px 20px
-}
+.quiz .card{width:min(580px,100%);max-height:100%;overflow-y:auto;background:var(--paper);padding:26px;border-radius:4px;box-shadow:0 20px 50px -10px var(--shadow);background-image:linear-gradient(var(--rule) 1px, transparent 1px),linear-gradient(90deg, var(--rule) 1px, transparent 1px);background-size:20px 20px}
 .quiz .meta{font:500 12px var(--f-mono);color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+.sheet{position:fixed;inset:0;z-index:35;background:var(--paper);background-image:var(--grain);overflow-y:auto;padding:calc(18px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(40px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px))}
+.sheet .in{max-width:1180px;margin:0 auto}
+.sheet header{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 0 14px;background:var(--paper);border-bottom:2px solid var(--ink);margin-bottom:18px}
+.sheet header h2{font-size:30px}
+.sheet .cols{columns:340px 3;column-gap:28px}
+.sheet .item{break-inside:avoid;margin:0 0 22px;padding-bottom:6px;border-bottom:1px dotted var(--ink-soft)}
+.sheet .item h3{margin:0 0 6px;font-size:18px}
+.sheet .item h3 span{color:var(--pen);font-style:italic}
+.sheet .item .f{font-size:16px;margin:12px 0 8px}
+.sheet .item ul{margin:4px 0 6px;padding-left:18px;font-size:14px}
+.sheet .ph{column-span:all;font:600 13px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--stamp);margin:6px 0 12px}
 
-/* ——— узко: страницы друг под другом ——— */
-@media (max-width: 900px){
-  .spread{grid-template-columns:1fr;min-height:0}
-  .page{padding:24px 18px 44px}
-  .page.left{border-radius:3px 3px 0 0;box-shadow:inset 0 -20px 24px -22px var(--shadow)}
-  .page.right{border-radius:0 0 3px 3px;box-shadow:inset 0 20px 24px -22px var(--shadow)}
-  .left .folio{left:18px}.right .folio{right:18px}
-  h2{font-size:28px}
-  .book{padding:6px}
-  .stampslot{width:84px;height:84px;top:-30px}
-  .rank{margin-left:0;width:100%}
-  .rk-bar{flex:1 1 80px}
-  .leaf{display:none!important}
-}
-@media (prefers-reduced-motion: reduce){
-  .leaf{display:none!important}
-  .stamp.new{animation:none}
-  *{transition:none!important}
-}
-/* ——— ранг и опыт ——— */
-.rank{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--ink-soft);margin-left:auto}
-.rank b{font:700 16px var(--f-display);color:var(--ink)}
-.rk-l{font:600 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase}
-.rk-bar{display:inline-block;width:120px;height:8px;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden;background:var(--paper)}
-.rk-bar i{display:block;height:100%;background:repeating-linear-gradient(-45deg,var(--stamp) 0 4px,color-mix(in srgb,var(--stamp) 70%,var(--paper)) 4px 8px);transition:width .6s}
-.rk-xp{font:500 12px var(--f-mono)}
+/* ——— ранг: уведомления ——— */
 .toasts{position:fixed;z-index:40;right:max(16px, env(safe-area-inset-right, 0px));top:calc(14px + env(safe-area-inset-top, 0px));display:grid;gap:8px;justify-items:end;pointer-events:none}
-.toast{background:var(--paper);border:1.5px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:8px 14px;font-size:14px;animation:tin .35s cubic-bezier(.2,1.4,.4,1)}
+.toast{background:var(--paper);border:1.5px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:9px 15px;font-size:14px;border-radius:3px;animation:tin .35s cubic-bezier(.2,1.4,.4,1)}
 .toast b{color:var(--good);font-family:var(--f-mono)}
 .toast.rankup{border-color:var(--stamp);box-shadow:3px 3px 0 var(--stamp);padding:12px 18px;display:grid;gap:2px}
 .toast.rankup b{color:var(--stamp);font:800 22px var(--f-display)}
@@ -381,32 +446,105 @@ details.hint summary{cursor:pointer;font:600 18px var(--f-hand);color:var(--ink-
 @keyframes tin{from{transform:translateX(30px);opacity:0}}
 
 /* ——— история в начале главы ——— */
-.hook{position:relative;margin:6px 0 24px;padding:20px 20px 12px;background:var(--paper-2);border:1px solid var(--edge);transform:rotate(-.5deg);box-shadow:0 12px 20px -14px var(--shadow)}
-.hook::before{content:"";position:absolute;top:-11px;left:50%;width:96px;height:22px;transform:translateX(-50%) rotate(2deg);background:color-mix(in srgb,var(--glow) 38%,transparent)}
-.hk-eye{font:600 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--stamp)}
-.hook h3{margin:4px 0 8px;font-size:23px;line-height:1.15}
-.hook p{margin:0 0 9px;max-width:62ch}
-.hook .big{font:800 30px/1.1 var(--f-display);color:var(--pen);margin:6px 0 10px}
+.hook{position:relative;margin:4px 0 26px;padding:22px 22px 12px;background:var(--paper-2);background-image:var(--grain);border:1px solid var(--edge);transform:rotate(-.5deg);box-shadow:0 14px 22px -16px var(--shadow)}
+.hook::before{content:"";position:absolute;top:-11px;left:50%;width:100px;height:22px;transform:translateX(-50%) rotate(2deg);background:color-mix(in srgb,var(--glow) 40%,transparent)}
+.hk-eye{font:600 12px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--stamp)}
+.hook h3{margin:4px 0 8px;font-size:24px;line-height:1.15;display:block}
+.hook h3::before{content:none}
+.hook p{margin:0 0 9px;max-width:64ch}
+.hook .big{font:800 30px/1.1 var(--f-display);color:var(--pen);margin:8px 0 12px}
 .swatch{display:inline-block;width:1.1em;height:1.1em;vertical-align:-.15em;border:1px solid var(--ink);margin-right:.3em}
 
 /* ——— живые обложки ——— */
-.cover-art{margin:6px 0 14px}
-.cover-art .cap{margin-top:4px}
-.crt{
-  margin:0;background:#0a0f0b;color:#a8f0a0;font:13px/1.45 var(--f-mono);padding:16px 18px;border-radius:12px;
-  border:10px solid #23262a;box-shadow:inset 0 0 40px rgba(0,0,0,.8), 0 14px 26px -14px var(--shadow);
-  text-shadow:0 0 6px rgba(120,255,120,.45);white-space:pre;overflow-x:auto;position:relative;
-  background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px)
-}
+.crt{margin:0;background:#0a0f0b;color:#a8f0a0;font:13px/1.45 var(--f-mono);padding:16px 18px;border-radius:14px;border:12px solid #23262a;box-shadow:inset 0 0 40px rgba(0,0,0,.8), 0 16px 28px -14px var(--shadow);text-shadow:0 0 6px rgba(120,255,120,.45);white-space:pre;overflow-x:auto;position:relative;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px)}
 .crt .cur{display:inline-block;width:.6em;background:#a8f0a0;animation:blink 1s steps(1) infinite}
 
-.more{margin-top:18px;padding:14px 16px;background:var(--paper);border:1.5px solid var(--ink-soft);border-radius:3px;display:grid;gap:16px}
-.more .lbl{margin:0}
-.mq p{margin:0 0 8px}
-.mq form{display:flex;gap:8px;flex-wrap:wrap}
-.mq input{flex:1 1 140px}
-.mn{font:600 13px var(--f-mono);color:var(--pen);white-space:nowrap}
-.mn.done::after{content:" ✓";color:var(--good)}
+/* ——— пошаговый режим: одна колонка, один кусок за раз ——— */
+.book.stepmode{max-width:880px;margin:0 auto}
+.book.stepmode .spread{grid-template-columns:1fr;min-height:0}
+.book.stepmode .spread::after,.book.stepmode .ribbon{display:none}
+.book.stepmode .page{padding:30px 44px 60px;box-shadow:none}
+.book.stepmode .page.left{border-radius:4px 4px 0 0;padding-bottom:20px}
+.book.stepmode .page.right{border-radius:0 0 4px 4px;padding-top:6px}
+.book.stepmode .page.right > .runhead{display:none}
+.book.stepmode .page.right::before{display:none}
+.book.stepmode .page.left:has(+ .page.right[hidden]){border-radius:4px}
+.book.stepmode .opener{min-height:0;margin-bottom:12px}
+.book.stepmode .bignum{font-size:96px;top:-12px}
+.book.stepmode .folio{display:none}
+.stepbar{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 12px;margin:0 -2px 6px;scrollbar-width:thin}
+.sp{flex:none;display:flex;gap:6px;align-items:center;border:1.5px solid var(--edge);border-radius:999px;padding:6px 12px;font:600 12.5px var(--f-body);background:var(--paper);cursor:pointer;color:var(--ink-soft);transition:background .15s}
+.sp b{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--paper-2);font:700 11px var(--f-mono);color:var(--ink-soft)}
+.sp:hover{border-color:var(--pen)}
+.sp.done{border-color:color-mix(in srgb,var(--good) 60%,transparent);color:var(--ink)}
+.sp.done b{background:var(--good);color:var(--paper)}
+.sp.cur{background:var(--pen);border-color:var(--pen);color:var(--paper)}
+.sp.cur b{background:var(--paper);color:var(--pen)}
+.stephead{position:relative;display:grid;gap:2px;padding:12px 16px 16px;margin-bottom:18px;border-radius:6px;background:var(--paper-2);border:1px solid var(--edge);overflow:hidden}
+.stephead span{font:600 11.5px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--stamp)}
+.stephead b{font:800 22px/1.2 var(--f-display)}
+.stephead small{font-size:13px;color:var(--ink-soft)}
+.stephead i{position:absolute;left:0;bottom:0;height:4px;background:var(--stamp);transition:width .4s}
+.stepnav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:28px;padding-top:18px;border-top:1.5px dashed var(--edge);flex-wrap:wrap}
+.btn.big{font-size:17px;padding:11px 22px}
+.sn-mid{flex:1 1 auto;display:flex;justify-content:center}
+
+/* ——— режимы концентрации ——— */
+.fopt{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start;padding:12px;border:1.5px solid var(--edge);border-radius:6px;margin-bottom:8px;cursor:pointer;background:var(--paper)}
+.fopt:has(input:checked){border-color:var(--pen);background:var(--pen-wash)}
+.fopt input{width:20px;height:20px;margin-top:2px;accent-color:var(--pen)}
+.fopt b{display:block;font-size:16px}
+.fopt small{display:block;font-size:13.5px;color:var(--ink-soft);line-height:1.4}
+.timerchip{position:fixed;z-index:39;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top, 0px));display:flex;gap:10px;align-items:center;padding:8px 10px 8px 14px;border-radius:999px;background:var(--paper);border:2px solid var(--pen);box-shadow:0 8px 20px -8px var(--shadow);font:600 16px var(--f-mono);font-variant-numeric:tabular-nums}
+.timerchip.break{border-color:var(--good)}
+.timerchip b{font:700 13px var(--f-body);color:var(--pen)}
+.timerchip.break b{color:var(--good)}
+.timerchip button{border:0;background:var(--paper-2);border-radius:50%;width:26px;height:26px;cursor:pointer}
+.calm body::after{display:none}
+.calm .page.left,.calm .hook,.calm .sheet{background-image:none}
+.calm .hook{transform:none}
+.calm .hook::before,.calm .bignum,.calm .ribbon,.calm .leaf{display:none!important}
+.calm .opener{padding-right:0;min-height:0}
+.calm .theory > p:first-of-type::first-letter{float:none;font:inherit;color:inherit;margin:0}
+.calm .flapbtn,.calm .flapbtn:hover,.calm .btn:hover{transform:none}
+.calm .reveal,.calm .stamp.new{animation:none}
+.calm .book{background:linear-gradient(var(--cloth),var(--cloth-2))}
+.bigtext body{font-size:18.5px;line-height:1.78}
+.bigtext .f{font-size:20.5px}
+.bigtext .sum,.bigtext .examq .ans{font-size:17px}
+.bigtext h2{font-size:40px}
+.ruler .theory:hover > *:not(:hover),.ruler .hook:hover p:not(:hover),.ruler .sum:hover li:not(:hover){opacity:.32;transition:opacity .2s}
+.ruler .theory > *:hover,.ruler .hook p:hover{background:color-mix(in srgb,var(--glow) 12%,transparent);border-radius:3px}
+
+/* ——— узко ——— */
+@media (max-width: 900px){
+  .spread{grid-template-columns:1fr;min-height:0}
+  .spread::after{display:none}
+  .page{padding:26px 18px 48px}
+  .page.left{border-radius:4px 4px 0 0;box-shadow:none}
+  .page.right{border-radius:0 0 4px 4px;box-shadow:none}
+  .page.right::before{left:12px}
+  .left .folio{left:18px}.right .folio{right:18px}
+  h2{font-size:29px}
+  .opener{padding-right:70px;min-height:70px}
+  .bignum{font-size:92px;top:-10px}
+  .book{padding:7px}
+  .ribbon{display:none}
+  .stampslot{width:86px;height:86px;top:-32px}
+  .rank{margin-left:0;width:100%}
+  .rk-bar{flex:1 1 80px}
+  .leaf{display:none!important}
+  .fig{padding:10px}
+  .book.stepmode .page{padding:22px 16px 48px}
+  .stephead b{font-size:19px}
+  .btn.big{font-size:16px;padding:10px 16px}
+  .timerchip{top:auto;bottom:calc(76px + env(safe-area-inset-bottom, 0px))}
+}
+@media (prefers-reduced-motion: reduce){
+  .leaf{display:none!important}
+  .stamp.new,.reveal{animation:none}
+  *{transition:none!important}
+}
 [hidden]{display:none!important}
 .blink{animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
@@ -428,27 +566,33 @@ details.hint summary{cursor:pointer;font:600 18px var(--f-hand);color:var(--ink-
       <section class="page right" id="pR"></section>
       <div class="leaf" id="leaf"></div>
     </div>
+    <div class="ribbon" aria-hidden="true"></div>
   </div>
 </main>
 
 <nav class="bar" aria-label="Листание">
-  <button id="bMenu" aria-label="Оглавление"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-  <button id="bPrev" aria-label="Предыдущая глава"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <i class="prog" id="barProg"></i>
+  <button id="bMenu" aria-label="Оглавление" title="Оглавление"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <button id="bPrev" aria-label="Предыдущая глава" title="Назад (←)"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
   <div class="ttl" id="bTitle"></div>
-  <button id="bNext" aria-label="Следующая глава"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
-  <button id="bQuiz" aria-label="Тренажёр"><svg viewBox="0 0 24 24"><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.5V14M12 17.5v.01"/><circle cx="12" cy="12" r="9"/></svg></button>
-  <button id="bTheme" aria-label="Сменить тему"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" fill="currentColor" style="fill:var(--ink)"/></svg></button>
+  <button id="bNext" aria-label="Следующая глава" title="Вперёд (→)"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  <button id="bFocus" aria-label="Режим концентрации и таймер" title="Фокус: пошаговый режим и таймер"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg></button>
+  <button id="bSheet" aria-label="Шпаргалка" title="Шпаргалка: все формулы"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6M9 13h6M9 17h4"/></svg></button>
+  <button id="bQuiz" aria-label="Тренажёр" title="Тренажёр"><svg viewBox="0 0 24 24"><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.5V14M12 17.5v.01"/><circle cx="12" cy="12" r="9"/></svg></button>
+  <button id="bTheme" aria-label="Сменить тему" title="Светлая / тёмная тема"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" fill="currentColor" style="fill:var(--ink)"/></svg></button>
 </nav>
 
 <div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="timerchip" id="timerChip" hidden aria-live="off"></div>
+<div class="quiz" id="focus" hidden><div class="card" id="focusCard" role="dialog" aria-modal="true" aria-label="Режим концентрации"></div></div>
 <div class="drawer" id="toc" hidden><div class="panel" id="tocPanel"></div></div>
 <div class="quiz" id="quiz" hidden><div class="card" id="quizCard" role="dialog" aria-modal="true" aria-label="Тренажёр"></div></div>
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-label="Шпаргалка"><div class="in" id="sheetIn"></div></div>
 
 <script>
 /* ——— общие инструменты для глав ——— */
 window.BOOKS = {
-  tv:{key:'tv',name:'Случай',sub:'Теория вероятностей и математическая статистика',src:'По «Руководству к решению задач по теории вероятностей и математической статистике» В. Е. Гмурмана',moreTitle:'Ещё задачи из Гмурмана',ranks:['Новичок за игральным столом','Ученик Паскаля','Знаток Бернулли','Наследник Гаусса','Магистр Лапласа'],lessons:[]},
-  vms:{key:'vms',name:'Бит',sub:'Вычислительные машины и системы',src:'По практической работе №1, лабораторным 1–4 и книге А. Зубкова «Assembler для DOS, Windows и Unix»',moreTitle:'Ещё задачи: практическая №1 и лабы',ranks:['Пользователь DOS','Повелитель Norton Commander','Мастер отладчика TD','Ассемблерщик','Хакер реального режима'],lessons:[]}
+  vms:{key:'vms',name:'Бит',sub:'Вычислительные машины и системы',src:'По практической работе №1, лабораторным 1–4 и книге А. Зубкова «Assembler для DOS, Windows и Unix»',moreTitle:'Ещё задачи: практическая, лабы, Зубков',ranks:['Пользователь DOS','Повелитель Norton Commander','Мастер отладчика TD','Ассемблерщик','Хакер реального режима'],lessons:[]}
 };
 const U = window.U = {
   h(tag, props, ...kids){
@@ -505,7 +649,7 @@ const U = window.U = {
     const p = g.createPattern(c,'repeat'); p.setTransform && p.setTransform(new DOMMatrix().scale(1/d)); return p;
   },
   num(s){
-    s = String(s).trim().replace(/\s/g,'').replace(',', '.');
+    s = String(s).trim().replace(/\s/g,'').replace('−','-').replace(',', '.');
     if (/^[-+]?\d*\.?\d+\/\d*\.?\d+$/.test(s)){ const [a,b]=s.split('/'); return +a/+b; }
     if (/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(s)) return +s;
     return NaN;
@@ -522,12 +666,12 @@ const U = window.U = {
   Phi(x){ return 0.5*U.erf(x/Math.SQRT2); },            // функция Лапласа Ф(x), как в Гмурмане
   phi(x){ return Math.exp(-x*x/2)/Math.sqrt(2*Math.PI); },
   PhiInv(v){ let a=0,b=6; for (let i=0;i<60;i++){ const m=(a+b)/2; if (U.Phi(m)<v) a=m; else b=m; } return (a+b)/2; },
+  gauss(){ const u = Math.random()||1e-9, v = Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); },
   fr(a,b){ return `<span class="fr"><span>${a}</span><span>${b}</span></span>`; },
   axes(g, x0, y0, x1, y1, c){ g.strokeStyle=c.ink; g.lineWidth=1.3; g.beginPath(); g.moveTo(x0,y1); g.lineTo(x0,y0); g.lineTo(x1,y0); g.stroke(); },
   text(g, s, x, y, o={}){ g.font=U.font(o.size||12,o.kind,o.w); g.fillStyle=o.color||U.col().ink; g.textAlign=o.align||'left'; g.textBaseline=o.base||'alphabetic'; g.fillText(s,x,y); }
 };
 </script>
-
 <script>
 /* Книга «Бит»: вычислительные машины и системы — по практической №1, лабам 1–4 и Зубкову */
 (() => {
@@ -1312,22 +1456,656 @@ BOOKS.vms.cover = el => {
 
 </script>
 <script>
+/* Книга «Бит», продолжение: главы по Зубкову (гл. 2, 4, 5, 10), защита лабораторных, части, итоги и вопросы к экзамену */
+(() => {
+const {h, fr} = U;
+const add = L => BOOKS.vms.lessons.push(L);
+const hx = (v, w) => (v>>>0).toString(16).toUpperCase().padStart(w||0,'0');
+const bin = (v, w) => (v>>>0).toString(2).padStart(w,'0').slice(-w);
+const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const P = (n, q, check, ans, hint, ph) => ({n, q, check, ans, hint, ph});
+const dec = t => s => U.near(s, t, 0);
+const hexEq = v => s => U.hex(s) === v;
+// число из поля: 0x.., ..h — hex, иначе десятичное (можно отрицательное)
+const parseVal = s => { s = String(s).trim(); if (/^(0x[0-9a-f]+|[0-9][0-9a-f]*h)$/i.test(s)) return U.hex(s); const v = U.num(s); return isFinite(v) ? Math.round(v) : NaN; };
+const parity = v => { let c = 0; for (let i=0;i<8;i++) c += (v>>i)&1; return c%2===0 ? 1 : 0; };
+const bits8 = v => `<span class="mono">${bin(v,8).slice(0,4)} ${bin(v,8).slice(4)}</span>`;
+
+/* 11. Числа с плавающей запятой */
+add({
+  id:'vms11', title:'Числа с плавающей запятой: IEEE 754 и FPU', src:'Зубков, 2.4; практ. №1',
+  theory:`<p>Целые числа хранятся с <b>фиксированной</b> запятой. Для дробных и очень больших чисел используют <b>плавающую</b> запятую: число записывают как мантиссу и порядок, как в «научной» записи 6,02·10²³, только по основанию 2.</p>
+  <div class="f">X = (−1)<sup>S</sup> · 1,M · 2<sup>E − смещение</sup><small>S — знак, E — смещённый порядок, M — дробная часть нормализованной мантиссы; ведущая единица «скрыта» и не хранится</small></div>
+  <div class="tbl"><table><tr><th>Формат (Зубков: типы FPU)</th><th>Бит</th><th>Знак</th><th>Порядок</th><th>Мантисса</th><th>Смещение</th></tr>
+  <tr><td>одинарная точность (dd, float)</td><td>32</td><td>1</td><td>8</td><td>23</td><td>127</td></tr>
+  <tr><td>двойная точность (dq, double)</td><td>64</td><td>1</td><td>11</td><td>52</td><td>1023</td></tr>
+  <tr><td>расширенная (dt, 80 бит FPU)</td><td>80</td><td>1</td><td>15</td><td>64 (единица явная)</td><td>16383</td></tr></table></div>
+  <h3>Как перевести число в single</h3>
+  <ol><li>Перевести в двоичную систему: 6,5 = 110,1₂.</li><li>Нормализовать: 1,101₂·2².</li><li>Порядок + смещение: 2 + 127 = 129 = 10000001₂.</li><li>Мантисса — биты после запятой: 101000…0.</li><li>Знак: 0 для «+», 1 для «−». −6,5 → 1 10000001 10100…0 = C0D00000h.</li></ol>
+  <p>Особые значения: E = 0 и M = 0 — ноль (бывает +0 и −0); E = все единицы и M = 0 — ±∞; E = все единицы и M ≠ 0 — NaN («не число»). Числа с E = 0 и M ≠ 0 — денормализованные.</p>
+  <p><b>Сопроцессор FPU</b> (8087 у 8086, встроен с 80486) работает со стеком из восьми 80-битных регистров ST(0)…ST(7): <code>fld</code> загружает число в стек, <code>fadd</code>, <code>fmul</code>, <code>fdiv</code> считают, <code>fstp</code> выгружает.</p>`,
+  predict:{q:'Сколько бит отводится под порядок в формате одинарной точности (32 бита)?', opts:['7','8','11'], a:1,
+    why:'1 бит знака + 8 бит порядка + 23 бита мантиссы = 32. В double порядок занимает 11 бит, мантисса — 52.'},
+  flap:`<p><b>−6,5 в формате single.</b> 6,5 = 110,1₂ = 1,101₂·2². Порядок 2 + 127 = 129 = 1000 0001₂. Мантисса 101 0000 0000 0000 0000 0000.</p>
+  <p>Склеиваем: 1 | 1000 0001 | 1010 0000 … → 1100 0000 1101 0000 0000 … = <b>C0D00000h</b>.</p>
+  <p><b>Обратно:</b> 41200000h = 0 | 1000 0010 | 010 0… → порядок 130 − 127 = 3, мантисса 1,01₂ = 1,25; 1,25·2³ = <b>10</b>.</p>`,
+  figCap:'32 бита числа одинарной точности. Знак — фиолетовый, порядок — синий, мантисса — чёрный. Биты можно щёлкать.',
+  try:'Впиши 0,1 — увидишь бесконечную двоичную дробь, обрезанную до 23 бит, и ошибку округления.',
+  ch:{q:'Запишите число −6,5 в формате одинарной точности (hex, 8 цифр).', ph:'например 3F800000', check:hexEq(0xC0D00000), ans:'C0D00000h', hint:'6,5 = 1,101₂·2²; порядок 129.'},
+  fig(el){
+    const dv = new DataView(new ArrayBuffer(4));
+    const inp = h('input',{class:'txt',id:'vms11-x',value:'-6.5',style:'width:10em','aria-label':'Число'});
+    const bitsBox = h('div',{class:'row',style:'gap:2px'}), out = h('div',{class:'readout'});
+    let u = 0;
+    const fromText = () => { const v = U.num(inp.value); if (isFinite(v)){ dv.setFloat32(0, v); u = dv.getUint32(0); } draw(); };
+    inp.addEventListener('input', fromText);
+    el.append(h('div',{class:'row'}, h('label',{for:'vms11-x'},'Число:'), inp, ...['1','0,1','−6,5','1e30','−0'].map(t=>U.btn(t,()=>{ inp.value = t.replace('−','-').replace(',','.'); fromText(); }))), bitsBox, out);
+    function draw(){
+      bitsBox.replaceChildren(...Array.from({length:32},(_,i)=>{ const b = (u>>>(31-i))&1, col = i===0?'var(--stamp)':i<9?'var(--pen)':'var(--ink)';
+        const bt = h('button',{type:'button',class:'btn','aria-label':'бит '+(31-i),style:`width:20px;padding:3px 0;box-shadow:none;font:600 12px var(--f-mono);border-color:${col};color:${b?'var(--paper)':col};background:${b?col:'var(--paper)'};${i===1||i===9?'margin-left:6px':''}`},String(b));
+        bt.onclick = () => { u = (u ^ (1<<(31-i)))>>>0; dv.setUint32(0,u); inp.value = String(dv.getFloat32(0)); draw(); }; return bt; }));
+      dv.setUint32(0,u); const v = dv.getFloat32(0), s = u>>>31, e = (u>>>23)&255, m = u & 0x7FFFFF;
+      const want = U.num(inp.value);
+      const kind = e===255 ? (m ? 'NaN' : (s?'−∞':'+∞')) : e===0 ? (m ? 'денормализованное' : (s?'−0':'+0')) : 'нормализованное';
+      out.innerHTML = `hex: <b>${hx(u,8)}h</b> · знак ${s} · порядок ${bin(e,8)} = ${e}${e&&e<255?` → 2<sup>${e-127}</sup>`:''} · ${kind}<br>мантисса 1,${bin(m,23).replace(/0+$/,'')||'0'}₂ = ${(1+m/2**23).toPrecision(9)}<br>хранится: <span class="hot">${v}</span>${isFinite(want)&&want!==v&&isFinite(v)?` · ошибка округления ${(v-want).toExponential(2)}`:''}`;
+    }
+    fromText();
+    return null;
+  }
+});
+
+/* 12. Архитектура ЭВМ */
+add({
+  id:'vms12', title:'Архитектура ЭВМ: процессор, память, шины', src:'Зубков, гл. 1–2; курс ВМиС',
+  theory:`<p>Почти все компьютеры построены по <b>принципам фон Неймана</b> (1945):</p>
+  <ul><li><b>двоичное кодирование</b> — и данные, и команды записаны в двоичном коде;</li><li><b>программное управление</b> — программа — последовательность команд, выполняемых процессором по порядку;</li><li><b>однородность памяти</b> — команды и данные хранятся в одной памяти, и различить их можно только по способу использования;</li><li><b>адресность</b> — память состоит из пронумерованных ячеек, к любой можно обратиться по адресу.</li></ul>
+  <p>В <b>гарвардской архитектуре</b> память команд и данных разделена (так устроены многие микроконтроллеры и кэши процессоров).</p>
+  <h3>Состав ЭВМ</h3>
+  <p><b>Процессор</b>: арифметико-логическое устройство (АЛУ) считает, устройство управления (УУ) выбирает и расшифровывает команды, регистры хранят операнды. <b>Память</b>: ОЗУ, ПЗУ (BIOS). <b>Устройства ввода-вывода</b> подключены через порты и контроллеры. Всё связано <b>шинами</b>:</p>
+  <div class="tbl"><table><tr><th>Шина</th><th>Что передаёт</th><th>У 8086</th></tr>
+  <tr><td>адреса</td><td>номер ячейки или порта</td><td>20 линий → 2²⁰ = 1 МБ</td></tr>
+  <tr><td>данных</td><td>сами данные и коды команд</td><td>16 бит</td></tr>
+  <tr><td>управления</td><td>сигналы чтения, записи, прерываний, тактирования</td><td>RD, WR, M/IO, INTR…</td></tr></table></div>
+  <h3>Цикл выполнения команды</h3>
+  <ol><li><b>Выборка</b>: адрес из CS:IP — на шину адреса, код команды — по шине данных в процессор.</li><li><b>Декодирование</b>: УУ определяет операцию и операнды; IP увеличивается на длину команды.</li><li><b>Выборка операндов</b> из регистров или памяти.</li><li><b>Исполнение</b> в АЛУ, установка флагов.</li><li><b>Запись результата</b>.</li></ol>
+  <p>В 8086 этим занимаются два блока: <b>BIU</b> (шинный интерфейс) заранее подкачивает команды в <b>очередь из 6 байт</b>, а <b>EU</b> (исполнительный блок) их выполняет — первый шаг к конвейеру.</p>
+  <h3>Иерархия памяти</h3>
+  <p>Регистры (доли наносекунды, байты) → кэш L1/L2/L3 (единицы нс, КБ–МБ) → ОЗУ (десятки нс, ГБ) → SSD/HDD (микро- и миллисекунды, ТБ). Чем ближе к процессору, тем быстрее, дороже и меньше. Кэш работает благодаря <b>локальности</b>: программы часто обращаются к тем же и соседним адресам.</p>`,
+  predict:{q:'Сколько памяти может адресовать процессор с 20-разрядной шиной адреса?', opts:['64 КБ','1 МБ','16 МБ'], a:1,
+    why:'2²⁰ = 1 048 576 байт = 1 МБ. Поэтому у 8086 адрес и считается как сегмент·16 + смещение: 16-битным регистрам нужно получить 20 бит.'},
+  flap:`<p><b>Объём адресуемой памяти</b> = 2<sup>разрядность шины адреса</sup>: 8086 — 2²⁰ = 1 МБ; 80286 — 2²⁴ = 16 МБ; 80386 — 2³² = 4 ГБ.</p>
+  <p><b>Разрядность шины данных</b> определяет, сколько бит передаётся за одно обращение: у 8086 — 16, у 8088 (IBM PC) — 8, хотя внутри он тоже 16-битный.</p>
+  <p>На рисунке справа — учебная машина: прогони программу по шагам и следи, какая шина работает в каждой фазе.</p>`,
+  figCap:'Учебная ЭВМ. Каждый щелчок «Шаг» — одна фаза цикла. Светится шина, по которой идут данные.',
+  try:'Пройди программу до HLT: в ячейке 8 должна появиться сумма 25 + 17.',
+  ch:{q:'У процессора 80286 шина адреса 24-разрядная. Сколько мегабайт памяти он может адресовать?', check:dec(16), ans:'16 МБ', hint:'2²⁴ байт = 2⁴·2²⁰.'},
+  fig(el){
+    const PROG = [['LOAD',6],['ADD',7],['STORE',8],['HLT',0]];
+    let st;
+    const reset = () => { st = {mem:[...PROG.map(p=>p[0]+' '+(p[0]==='HLT'?'':p[1])), '', '', 25, 17, 0], ip:0, ir:'—', acc:0, ph:0, bus:'', note:'Нажми «Шаг»: начнём с выборки первой команды.', halt:false}; draw(); };
+    const step = () => {
+      if (st.halt) return;
+      const [op, a] = PROG[st.ip] || ['HLT',0];
+      if (st.ph===0){ st.bus='addr'; st.note=`Выборка: IP = ${st.ip} → шина адреса, память отдаёт код команды.`; st.ph=1; }
+      else if (st.ph===1){ st.bus='data'; st.ir = op+(op==='HLT'?'':' '+a); st.note=`Код «${st.ir}» по шине данных попал в регистр команд. IP = IP + 1.`; st.ip++; st.ph=2; }
+      else if (st.ph===2){ st.bus='ctrl'; st.note=`Декодирование: УУ видит операцию ${op}${op==='HLT'?'':' с адресом '+a}.`; st.ph = op==='HLT' ? 4 : 3; }
+      else if (st.ph===3){
+        if (op==='LOAD'){ st.acc = st.mem[a]; st.bus='data'; st.note=`Исполнение: ячейка ${a} (${st.mem[a]}) по шине данных → аккумулятор.`; }
+        if (op==='ADD'){ st.acc += st.mem[a]; st.bus='alu'; st.note=`Исполнение: АЛУ складывает аккумулятор с ячейкой ${a}: результат ${st.acc}.`; }
+        if (op==='STORE'){ st.mem[a] = st.acc; st.bus='data'; st.note=`Запись: аккумулятор (${st.acc}) по шине данных → ячейка ${a}.`; }
+        st.ph = 0;
+      } else { st.halt = true; st.bus=''; st.note='HLT: процессор остановлен. В ячейке 8 — сумма.'; }
+      draw();
+    };
+    el.append(h('div',{class:'row'}, U.btn('Шаг ▶', step, 'pri'), U.btn('Сначала', reset)));
+    const cv = U.canvas(el, w=>w<420?.95:.62), out = h('div',{class:'readout'}); el.append(out);
+    function draw(){
+      if (!st) return;
+      const {g,W,H} = cv.fit(), c = U.col(), narrow = W < 420;
+      const box = (x,y,w,hh,t,glow) => { g.save(); if (glow){ g.shadowColor=c.glow; g.shadowBlur=14; } g.fillStyle=c.paper; g.fillRect(x,y,w,hh); g.strokeStyle=glow?c.glow:c.ink; g.lineWidth=glow?2.5:1.4; g.strokeRect(x,y,w,hh); g.restore(); U.text(g,t,x+6,y+15,{size:11,color:c.soft,kind:'mono'}); };
+      const cpuW = narrow ? W-20 : W*.42, cx = 10, cy = 10, cpuH = narrow ? H*.38 : H-60;
+      box(cx,cy,cpuW,cpuH,'ПРОЦЕССОР');
+      const reg = (i,name,val,glow) => { const y = cy+26+i*((cpuH-36)/4); box(cx+10,y,cpuW-20,(cpuH-36)/4-8,name,glow); U.text(g,String(val),cx+cpuW-18,y+(cpuH-36)/8+2,{size:15,align:'right',kind:'mono',w:600}); };
+      reg(0,'IP — счётчик команд',st.ip,st.bus==='addr'); reg(1,'регистр команд',st.ir,st.ph===2||st.bus==='ctrl'); reg(2,'АЛУ',st.bus==='alu'?'+':'',st.bus==='alu'); reg(3,'аккумулятор',st.acc,st.bus==='data'&&st.ph===0);
+      const mx = narrow ? 10 : W*.62, my = narrow ? cy+cpuH+50 : 10, mw = narrow ? W-20 : W*.38-10, mh = narrow ? H-my-8 : H-20, rh = mh/9;
+      box(mx,my,mw,mh,'ПАМЯТЬ');
+      st.mem.forEach((v,i)=>{ const y = my+20+i*rh*0.98, hot = (i===st.ip-(st.ph===2||st.ph===3?1:0) && st.bus==='addr') || ((PROG[st.ip-1]||[])[1]===i && st.ph===0 && st.bus==='data');
+        if (hot){ g.fillStyle = c.wash; g.fillRect(mx+2,y,mw-4,rh-2); }
+        U.text(g,String(i),mx+8,y+rh*.65,{size:11,color:c.soft,kind:'mono'}); U.text(g,String(v),mx+30,y+rh*.65,{size:13,kind:'mono',w:i>=6?600:400,color:i>=6?c.stamp:c.ink}); });
+      const busY = narrow ? [cy+cpuH+12, cy+cpuH+24, cy+cpuH+36] : [H*.3, H*.5, H*.7];
+      [['шина адреса','addr'],['шина данных','data'],['шина управления','ctrl']].forEach(([t,k],i)=>{ const on = st.bus===k || (k==='data'&&st.bus==='alu'&&false);
+        g.save(); if (on){ g.shadowColor=c.glow; g.shadowBlur=12; } g.strokeStyle = on ? c.glow : c.edge; g.lineWidth = on ? 4 : 2.5;
+        g.beginPath(); if (narrow){ g.moveTo(20,busY[i]); g.lineTo(W-20,busY[i]); } else { g.moveTo(cx+cpuW,busY[i]); g.lineTo(mx,busY[i]); } g.stroke(); g.restore();
+        U.text(g,t,narrow?W/2:(cx+cpuW+mx)/2,busY[i]-6,{size:10,align:'center',color:on?c.ink:c.soft,kind:'mono'}); });
+      out.innerHTML = esc(st.note);
+    }
+    reset();
+    return draw;
+  }
+});
+
+/* 13. Пересылка, арифметика, флаги */
+add({
+  id:'vms13', title:'Пересылка и арифметика. Флаги процессора', src:'Зубков, 2.1.4, 2.3.1–2.3.3',
+  theory:`<p><b>MOV приёмник, источник</b> копирует данные. Ограничения: нельзя «память ← память», нельзя записать константу прямо в сегментный регистр (только через регистр общего назначения: <code>mov ax,dseg / mov ds,ax</code>), нельзя менять CS командой mov, размеры операндов должны совпадать. Ещё: <code>xchg</code> — обмен, <code>lea</code> — загрузить адрес (смещение), <code>push</code>/<code>pop</code> — стек.</p>
+  <div class="tbl"><table><tr><th>Команда</th><th>Действие</th></tr>
+  <tr><td><code>add / adc</code></td><td>сложение / с переносом: a + b + CF</td></tr>
+  <tr><td><code>sub / sbb</code></td><td>вычитание / с заёмом: a − b − CF</td></tr>
+  <tr><td><code>inc / dec</code></td><td>±1, флаг CF <b>не меняют</b></td></tr>
+  <tr><td><code>neg</code></td><td>смена знака (дополнительный код)</td></tr>
+  <tr><td><code>cmp a,b</code></td><td>вычитание без записи результата — только флаги</td></tr>
+  <tr><td><code>mul / imul src</code></td><td>беззнаковое / знаковое: AX = AL·src (байт), DX:AX = AX·src (слово)</td></tr>
+  <tr><td><code>div / idiv src</code></td><td>AL = AX / src, AH = остаток (байт); AX = DX:AX / src, DX = остаток (слово)</td></tr>
+  <tr><td><code>cbw / cwd</code></td><td>расширить знак: AL → AX, AX → DX:AX</td></tr>
+  <tr><td><code>daa / das, aaa…</code></td><td>десятичная коррекция для BCD</td></tr></table></div>
+  <h3>Регистр флагов</h3>
+  <div class="tbl"><table><tr><th>Флаг</th><th>Когда равен 1</th></tr>
+  <tr><td>CF перенос</td><td>беззнаковый результат не поместился (перенос или заём из старшего бита)</td></tr>
+  <tr><td>ZF ноль</td><td>результат равен 0</td></tr>
+  <tr><td>SF знак</td><td>старший бит результата 1 (отрицательный в доп. коде)</td></tr>
+  <tr><td>OF переполнение</td><td>знаковый результат не поместился: + и + дали −, или − и − дали +</td></tr>
+  <tr><td>PF чётность</td><td>в младшем байте результата чётное число единиц</td></tr>
+  <tr><td>AF вспомогательный перенос</td><td>перенос из бита 3 в бит 4 (для BCD)</td></tr>
+  <tr><td>DF, IF, TF</td><td>управляющие: направление строк, разрешение прерываний, пошаговый режим</td></tr></table></div>
+  <p>Деление на 0 или слишком большое частное вызывает <b>прерывание 0</b> («Divide overflow»).</p>`,
+  predict:{q:'<code>mov al,0FFh / add al,1</code>. Что будет с флагами CF и ZF?', opts:['CF = 0, ZF = 0','CF = 1, ZF = 1','CF = 0, ZF = 1'], a:1,
+    why:'FFh + 1 = 100h: в байт помещается 00h (ZF = 1), а единица ушла переносом (CF = 1). Для знаковых чисел это −1 + 1 = 0 — переполнения нет, OF = 0.'},
+  flap:`<p><b>7Fh + 1.</b> 0111 1111 + 1 = 1000 0000 = 80h. Беззнаково 127 + 1 = 128 — всё верно, CF = 0. Знаково 127 + 1 = −128 — неверно, <b>OF = 1</b>. SF = 1, ZF = 0.</p>
+  <p><b>mov ax,1000 / mov bl,10 / div bl.</b> AL = 1000 / 10 = 100 (64h), AH = 0. А <code>div bl</code> при AX = 3000 даст частное 300 &gt; 255 — прерывание 0.</p>
+  <p><b>Правило:</b> CF следит за беззнаковыми числами, OF — за знаковыми. Процессор считает одинаково, а смысл выбирает программист.</p>`,
+  figCap:'8-битное АЛУ. Выбери операцию и операнды — увидишь результат и все флаги с объяснением.',
+  try:'Сложи 7Fh и 1: CF = 0, но OF = 1. Потом FFh и 1: наоборот.',
+  ch:{q:'<code>mov al,7Fh / add al,1</code>. Чему равен флаг OF?', check:dec(1), ans:'1 — 127 + 1 вышло за диапазон знакового байта', hint:'Сложили два положительных, а старший бит результата стал 1.'},
+  fig(el){
+    const OPS = ['ADD','ADC','SUB','SBB','CMP','INC','DEC','NEG','MUL','DIV'];
+    let op = 0, A = '7Fh', B = '1', cin = 0;
+    const ia = h('input',{class:'txt',id:'vms13-a',value:A,style:'width:6em','aria-label':'AL'}), ib = h('input',{class:'txt',id:'vms13-b',value:B,style:'width:6em','aria-label':'второй операнд'});
+    const bc = U.btn('CF до = 0', ()=>{ cin ^= 1; draw(); });
+    [ia,ib].forEach(i=>i.addEventListener('input',()=>draw()));
+    el.append(h('div',{class:'row'}, U.select('vms13-op', OPS, v=>{op=v; draw();}), h('label',{for:'vms13-a'},'AL ='), ia, h('label',{for:'vms13-b'},'src ='), ib, bc));
+    const out = h('div',{class:'readout',style:'font-size:14.5px'}); el.append(out);
+    function draw(){
+      bc.textContent = 'CF до = '+cin; bc.setAttribute('aria-pressed', !!cin);
+      const a = parseVal(ia.value), b = parseVal(ib.value), o = OPS[op];
+      if (!isFinite(a) || a<-128 || a>255 || ((!['INC','DEC','NEG'].includes(o)) && (!isFinite(b) || b<-128 || b>255))){ out.innerHTML = '<span class="bad">Операнды — байты: от −128 до 255, можно в hex (7Fh, 0x80).</span>'; return; }
+      const x = a & 255, y = (b & 255) || 0;
+      let r, F = {}, txt = '';
+      if (o==='MUL'){ const p = x*y; F.CF = F.OF = p>255?1:0; out.innerHTML = `AX = AL·src = ${x}·${y} = <b>${p}</b> = ${hx(p,4)}h<br>AH = ${hx(p>>8,2)}h · AL = ${hx(p&255,2)}h · CF = OF = ${F.CF} ${F.CF?'(старшая половина не ноль)':''}<br><span style="color:var(--ink-soft)">остальные флаги после MUL не определены</span>`; return; }
+      if (o==='DIV'){ const ax = a & 0xFFFF; if (!y){ out.innerHTML = '<span class="bad">Деление на 0 → прерывание INT 0 («Divide overflow»)</span>'; return; }
+        const q = Math.floor(ax/y), m = ax%y; out.innerHTML = q>255 ? `<span class="bad">AX/src = ${ax}/${y} = ${q} &gt; 255 — частное не влезает в AL → INT 0</span>` : `AX = ${ax} (здесь AL трактуем как AX) · AL = частное <b>${q}</b> · AH = остаток <b>${m}</b>`; return; }
+      if (['ADD','ADC','INC'].includes(o)){ const yy = o==='INC'?1:y, c0 = o==='ADC'?cin:0; const s = x+yy+c0; r = s & 255;
+        F.CF = o==='INC' ? cin : (s>255?1:0); F.OF = ((x^r)&(yy^r)&0x80)?1:0; F.AF = ((x^yy^r)&0x10)?1:0; txt = `${hx(x,2)}h + ${hx(yy,2)}h${c0?' + CF':''}`; }
+      else { const yy = o==='DEC'?1:(o==='NEG'?x:y), xx = o==='NEG'?0:x, c0 = o==='SBB'?cin:0; const d = xx-yy-c0; r = d & 255;
+        F.CF = o==='DEC' ? cin : o==='NEG' ? (x?1:0) : (d<0?1:0); F.OF = ((xx^yy)&(xx^r)&0x80)?1:0; F.AF = ((xx^yy^r)&0x10)?1:0; txt = o==='NEG' ? `0 − ${hx(x,2)}h` : `${hx(xx,2)}h − ${hx(yy,2)}h${c0?' − CF':''}`; }
+      F.ZF = r===0?1:0; F.SF = r>>7; F.PF = parity(r);
+      const sg = v => v>127 ? v-256 : v;
+      const why = {CF: o==='INC'||o==='DEC' ? 'не меняется' : F.CF ? 'перенос/заём из старшего бита' : 'беззнаковый результат верный', ZF: F.ZF?'результат 0':'не ноль', SF: F.SF?'старший бит 1':'старший бит 0', OF: F.OF?'знаковое переполнение!':'знаковый результат верный', PF: F.PF?'чётное число единиц':'нечётное число единиц', AF: F.AF?'перенос из бита 3':'—'};
+      out.innerHTML = `${txt} = ${bits8(r)} = <b>${hx(r,2)}h</b>${o==='CMP'?' <span style="color:var(--ink-soft)">(результат не записывается)</span>':''}<br>без знака: ${r} · со знаком: ${sg(r)}<br>`+
+        Object.keys(why).map(k=>`${k} = <span class="${F[k]?'hot':''}">${F[k]}</span> <span style="color:var(--ink-soft)">${why[k]}</span>`).join('<br>');
+    }
+    draw();
+    return null;
+  }
+});
+
+/* 14. Логика и сдвиги */
+add({
+  id:'vms14', title:'Логические операции, сдвиги и маски', src:'Зубков, 2.3.4–2.3.6',
+  theory:`<div class="tbl"><table><tr><th>Команда</th><th>Что делает с битами</th><th>Типичное применение</th></tr>
+  <tr><td><code>and</code></td><td>1, только если оба бита 1</td><td><b>сбросить</b> биты маской с нулями: <code>and al,0Fh</code></td></tr>
+  <tr><td><code>or</code></td><td>1, если хотя бы один 1</td><td><b>установить</b> биты: <code>or al,80h</code></td></tr>
+  <tr><td><code>xor</code></td><td>1, если биты разные</td><td><b>инвертировать</b> биты; <code>xor ax,ax</code> — обнулить</td></tr>
+  <tr><td><code>not</code></td><td>инвертирует все биты</td><td>обратный код</td></tr>
+  <tr><td><code>test</code></td><td>and без записи результата</td><td>проверить бит: <code>test al,1 / jnz нечётное</code></td></tr></table></div>
+  <p>Логические команды сбрасывают CF и OF в 0 и выставляют ZF, SF, PF по результату.</p>
+  <h3>Сдвиги</h3>
+  <div class="tbl"><table><tr><th>Команда</th><th>Как</th><th>Смысл</th></tr>
+  <tr><td><code>shl / sal</code></td><td>влево, справа входит 0, старший бит → CF</td><td>умножение на 2ⁿ</td></tr>
+  <tr><td><code>shr</code></td><td>вправо, слева входит 0, младший бит → CF</td><td>беззнаковое деление на 2ⁿ</td></tr>
+  <tr><td><code>sar</code></td><td>вправо, слева повторяется знаковый бит</td><td>знаковое деление на 2ⁿ</td></tr>
+  <tr><td><code>rol / ror</code></td><td>циклически: выпавший бит входит с другой стороны и копируется в CF</td><td>перестановка битов</td></tr>
+  <tr><td><code>rcl / rcr</code></td><td>циклически через CF (9 бит по кругу)</td><td>сдвиг многобайтных чисел</td></tr></table></div>
+  <p>У 8086 счётчик сдвига — 1 или регистр CL: <code>mov cl,3 / shl ax,cl</code>. Операции над отдельными битами (с 80386): <code>bt, bts, btr, btc</code>.</p>`,
+  predict:{q:'AL = 81h. После <code>shl al,1</code> чему равны AL и CF?', opts:['AL = 02h, CF = 1','AL = 03h, CF = 0','AL = 40h, CF = 1'], a:0,
+    why:'1000 0001 сдвигаем влево: старшая единица уходит в CF, справа входит 0 → 0000 0010 = 02h.'},
+  flap:`<p><b>AL = B4h, and al,0Fh.</b> 1011 0100 AND 0000 1111 = 0000 0100 = <b>04h</b> — остаётся младшая тетрада.</p>
+  <p><b>Знаковое деление:</b> AL = 96h (−106). <code>sar al,1</code>: 1001 0110 → 1100 1011 = CBh = −53. А <code>shr</code> дал бы 4Bh = 75 — неверно для отрицательного.</p>
+  <p><b>Быстрое умножение на 10:</b> x·10 = x·8 + x·2 = (x shl 3) + (x shl 1).</p>`,
+  figCap:'Регистр AL до и после операции. Выпавший бит уходит во флаг CF.',
+  try:'Возьми AL = 96h и сравни SHR и SAR: только SAR честно делит отрицательное число.',
+  ch:{q:'AL = B4h. Чему станет равен AL после <code>and al,0Fh</code>? (hex)', ph:'например 1Ah', check:hexEq(0x04), ans:'04h', hint:'Маска 0Fh оставляет только младшие 4 бита.'},
+  fig(el){
+    const OPS = ['AND','OR','XOR','NOT','TEST','SHL','SHR','SAR','ROL','ROR','RCL','RCR'];
+    let op = 5, cin = 0;
+    const ia = h('input',{class:'txt',id:'vms14-a',value:'81h',style:'width:6em','aria-label':'AL'}), im = h('input',{class:'txt',id:'vms14-m',value:'0Fh',style:'width:6em','aria-label':'маска'});
+    const sn = U.slider('vms14-n','сдвиг на',1,7,1,1,null,()=>draw());
+    const bc = U.btn('CF до = 0', ()=>{ cin ^= 1; draw(); });
+    [ia,im].forEach(i=>i.addEventListener('input',()=>draw()));
+    el.append(h('div',{class:'row'}, U.select('vms14-op', OPS, v=>{op=v; draw();}), h('label',{for:'vms14-a'},'AL ='), ia, h('label',{for:'vms14-m'},'маска ='), im, bc), h('div',{class:'ctls'}, sn));
+    const cv = U.canvas(el, .34), out = h('div',{class:'readout'}); el.append(out);
+    el.querySelector('#vms14-op').value = String(op);
+    let lastR = 0, lastA = 0, lastCF = 0;
+    function calc(){
+      const a = parseVal(ia.value) & 255, m = parseVal(im.value) & 255, o = OPS[op], n = sn.get();
+      let v = a, cf = cin;
+      if (o==='AND'||o==='TEST'){ v = a & m; cf = 0; } else if (o==='OR'){ v = a | m; cf = 0; } else if (o==='XOR'){ v = a ^ m; cf = 0; } else if (o==='NOT'){ v = ~a & 255; }
+      else for (let i=0;i<n;i++){
+        if (o==='SHL'){ cf = v>>7; v = (v<<1)&255; } else if (o==='SHR'){ cf = v&1; v >>= 1; } else if (o==='SAR'){ cf = v&1; v = (v>>1)|(v&0x80); }
+        else if (o==='ROL'){ cf = v>>7; v = ((v<<1)|cf)&255; } else if (o==='ROR'){ cf = v&1; v = (v>>1)|(cf<<7); }
+        else if (o==='RCL'){ const nc = v>>7; v = ((v<<1)|cf)&255; cf = nc; } else if (o==='RCR'){ const nc = v&1; v = (v>>1)|(cf<<7); cf = nc; } }
+      return {a, v, cf, o, m};
+    }
+    function draw(){
+      bc.textContent = 'CF до = '+cin; bc.setAttribute('aria-pressed', !!cin);
+      if (!isFinite(parseVal(ia.value))){ out.innerHTML = '<span class="bad">AL — число от 0 до 255 или hex (81h).</span>'; return; }
+      const {a, v, cf, o, m} = calc(), {g,W,H} = cv.fit(), c = U.col(), cw = Math.min((W-80)/8, 34), x0 = (W-cw*8)/2 - 20;
+      const row = (y, val, label, hot) => { U.text(g,label,x0-8,y+cw*.62,{size:12,align:'right',color:c.soft,kind:'mono'});
+        for (let i=0;i<8;i++){ const b = (val>>(7-i))&1; g.fillStyle = b ? (hot?c.pen:c.ink) : c.paper; g.fillRect(x0+i*cw,y,cw-3,cw-3); g.strokeStyle=c.ink; g.lineWidth=1.2; g.strokeRect(x0+i*cw,y,cw-3,cw-3);
+          U.text(g,b,x0+i*cw+cw/2-1.5,y+cw*.62,{size:14,align:'center',kind:'mono',w:600,color:b?c.paper:c.ink}); } };
+      row(6, a, 'до'); row(H-cw-4, o==='TEST'?a:v, o==='TEST'?'AL не изменился':'после', true);
+      const cfx = x0+8*cw+16, cfy = H/2-cw/2; g.save(); g.shadowColor=c.glow; g.shadowBlur = cf?12:0; g.fillStyle = cf?c.glow:c.paper; g.fillRect(cfx,cfy,cw,cw); g.restore(); g.strokeStyle=c.ink; g.strokeRect(cfx,cfy,cw,cw);
+      U.text(g,cf,cfx+cw/2,cfy+cw*.66,{size:15,align:'center',kind:'mono',w:600}); U.text(g,'CF',cfx+cw/2,cfy-4,{size:11,align:'center',color:c.soft,kind:'mono'});
+      const sg = x => x>127 ? x-256 : x, logic = ['AND','OR','XOR','TEST'].includes(o);
+      out.innerHTML = `${o} ${logic?`AL, ${hx(m,2)}h`:o==='NOT'?'AL':`AL, ${sn.get()}`}: ${hx(a,2)}h → <b>${hx(o==='TEST'?a:v,2)}h</b>${o==='TEST'?` (результат ${hx(v,2)}h идёт только во флаги)`:''}<br>без знака ${a} → ${o==='TEST'?a:v} · со знаком ${sg(a)} → ${sg(o==='TEST'?a:v)} · CF = ${cf} · ZF = ${v?0:1}`;
+    }
+    draw();
+    return draw;
+  }
+});
+
+/* 15. Переходы, циклы, стек, процедуры */
+add({
+  id:'vms15', title:'Переходы, циклы, стек и процедуры', src:'Зубков, 2.1.3, 2.3.7, 5.1–5.2',
+  theory:`<p><code>jmp метка</code> — безусловный переход: короткий (±127 байт), ближний (в пределах сегмента, меняет IP) и дальний (меняет CS и IP). Условные переходы смотрят на флаги, поэтому перед ними обычно стоит <code>cmp</code> или <code>test</code>.</p>
+  <div class="tbl"><table><tr><th>Условие</th><th>Без знака</th><th>Со знаком</th><th>Флаги</th></tr>
+  <tr><td>равно / не равно</td><td colspan="2"><code>je (jz)</code> / <code>jne (jnz)</code></td><td>ZF = 1 / ZF = 0</td></tr>
+  <tr><td>больше</td><td><code>ja</code></td><td><code>jg</code></td><td>CF = 0 и ZF = 0 / ZF = 0 и SF = OF</td></tr>
+  <tr><td>больше или равно</td><td><code>jae (jnc)</code></td><td><code>jge</code></td><td>CF = 0 / SF = OF</td></tr>
+  <tr><td>меньше</td><td><code>jb (jc)</code></td><td><code>jl</code></td><td>CF = 1 / SF ≠ OF</td></tr>
+  <tr><td>меньше или равно</td><td><code>jbe</code></td><td><code>jle</code></td><td>CF = 1 или ZF = 1 / ZF = 1 или SF ≠ OF</td></tr></table></div>
+  <p>Запомни: <b>a</b>bove / <b>b</b>elow — для беззнаковых, <b>g</b>reater / <b>l</b>ess — для знаковых. Ещё: <code>js, jns, jo, jno, jp, jcxz</code>.</p>
+  <h3>Циклы</h3>
+  <p><code>loop метка</code>: CX = CX − 1, и если CX ≠ 0 — переход. Если перед циклом CX = 0, тело выполнится 65 536 раз! Защита — <code>jcxz</code> перед циклом. Варианты: <code>loope/loopz</code>, <code>loopne/loopnz</code> учитывают ещё и ZF.</p>
+  <h3>Стек</h3>
+  <p>Стек — область памяти SS:SP, растущая <b>вниз</b>. <code>push x</code>: SP = SP − 2, затем слово записывается по SS:SP. <code>pop x</code>: слово читается, затем SP = SP + 2. Принцип LIFO: последним положил — первым достал.</p>
+  <h3>Процедуры</h3>
+  <p><code>call proc</code> кладёт в стек адрес возврата (ближний — IP, дальний — CS и IP) и переходит; <code>ret</code> снимает его и возвращается. <code>ret n</code> дополнительно убирает n байт параметров. Параметры передают через регистры, через стек или глобальные переменные. Стандартный пролог:</p>
+  <pre class="asm">proc1  proc near
+       push bp
+       mov  bp,sp          ; [bp+2] — адрес возврата
+       mov  ax,[bp+4]      ; первый параметр (последний положенный)
+       ...
+       pop  bp
+       ret  2              ; убрать один параметр-слово
+proc1  endp</pre>
+  <p>Локальные переменные выделяют, уменьшая SP: <code>sub sp,4</code>, и адресуют как [bp−2], [bp−4]. С 80186 есть <code>enter</code> и <code>leave</code>.</p>`,
+  predict:{q:'AL = 0FFh, BL = 1, затем <code>cmp al,bl</code>. Какие переходы сработают?', opts:['JA и JG','JA, но не JG','JG, но не JA'], a:1,
+    why:'Без знака FFh = 255 &gt; 1 — JA сработает. Со знаком FFh = −1 &lt; 1 — JG не сработает. Одни и те же биты, разный смысл.'},
+  flap:`<p><b>SP = 0100h, затем push ax, push bx, call proc (ближний).</b> Каждое действие уменьшает SP на 2: 00FEh, 00FCh, 00FAh. Ответ: <b>00FAh</b>.</p>
+  <p><b>Параметр перед call.</b> После <code>push bp / mov bp,sp</code>: [bp] — старый BP, [bp+2] — адрес возврата, [bp+4] — параметр.</p>
+  <p><b>Ловушка с loop.</b> mov cx,0 / m: … / loop m — первым делом CX станет FFFFh, и цикл пройдёт 65 536 раз.</p>`,
+  figCap:'Сверху — какие переходы сработают после CMP. Снизу — стек: кнопки кладут и снимают слова, SP двигается вниз.',
+  try:'Сравни FFh и 01h: беззнаковые и знаковые переходы разойдутся.',
+  ch:{q:'SP = 0100h. Выполнили <code>push ax</code>, <code>push bx</code>, затем ближний <code>call proc</code>. Чему равен SP внутри процедуры? (hex)', ph:'например 00F0h', check:hexEq(0xFA), ans:'00FAh', hint:'Каждое слово в стеке уменьшает SP на 2.'},
+  fig(el){
+    const ia = h('input',{class:'txt',id:'vms15-a',value:'0FFh',style:'width:6em','aria-label':'первый операнд'}), ib = h('input',{class:'txt',id:'vms15-b',value:'1',style:'width:6em','aria-label':'второй операнд'});
+    [ia,ib].forEach(i=>i.addEventListener('input',()=>draw()));
+    const jt = h('div',{class:'readout'});
+    let stack = [], sp = 0x100, n = 0;
+    const st = h('div',{class:'readout'});
+    const push = (what, val) => { sp -= 2; stack.push([sp, what, val]); draw(); };
+    const pop = what => { if (!stack.length){ st.dataset.err = 'Стек пуст — pop прочитал бы мусор.'; draw(); return; } stack.pop(); sp += 2; draw(); };
+    el.append(h('div',{class:'row'}, h('span',{},'cmp'), ia, h('span',{},','), ib), jt,
+      h('div',{class:'row'}, U.btn('push ax', ()=>push('ax', 0x1234)), U.btn('push bx', ()=>push('bx', 0xABCD)), U.btn('call proc', ()=>push('адрес возврата (IP)', 0x0110)), U.btn('pop / ret', pop), U.btn('Сброс', ()=>{ stack=[]; sp=0x100; delete st.dataset.err; draw(); })), st);
+    function draw(){
+      const a = parseVal(ia.value), b = parseVal(ib.value);
+      if (!isFinite(a)||!isFinite(b)) jt.innerHTML = '<span class="bad">Операнды — байты (0…255, −128…127 или hex).</span>';
+      else { const x = a&255, y = b&255, d = x-y, r = d&255, CF = d<0?1:0, ZF = r?0:1, SF = r>>7, OF = ((x^y)&(x^r)&0x80)?1:0, sg = v=>v>127?v-256:v;
+        const J = [['JE / JZ',ZF],['JNE',!ZF],['JA',!CF&&!ZF],['JAE / JNC',!CF],['JB / JC',CF],['JBE',CF||ZF],['JG',!ZF&&SF===OF],['JGE',SF===OF],['JL',SF!==OF],['JLE',ZF||SF!==OF]];
+        jt.innerHTML = `${hx(x,2)}h − ${hx(y,2)}h → CF=${CF} ZF=${ZF} SF=${SF} OF=${OF} · без знака ${x} vs ${y} · со знаком ${sg(x)} vs ${sg(y)}<br>` + J.map(([n,ok])=>`<span class="${ok?'good':'bad'}">${n} ${ok?'✓':'✗'}</span>`).join(' · '); }
+      st.innerHTML = `SP = <b>${hx(sp,4)}h</b>${st.dataset.err?` · <span class="bad">${st.dataset.err}</span>`:''}<br>` + (stack.length ? stack.slice().reverse().map(([adr,w,v],i)=>`SS:${hx(adr,4)} │ ${hx(v,4)}h ← ${w}${i===0?' <span class="hot">← вершина (SP)</span>':''}`).join('<br>') : '<span style="color:var(--ink-soft)">стек пуст, вершина в SS:0100</span>');
+      delete st.dataset.err;
+    }
+    draw();
+    return null;
+  }
+});
+
+/* 16. Прерывания */
+const VEC = {0:'деление на 0 (исключение)',1:'пошаговый режим (TF = 1)',2:'NMI — немаскируемое',3:'точка останова (int 3, отладчик)',4:'переполнение (into)',5:'Print Screen',8:'таймер, IRQ 0 — 18,2 раза в секунду',9:'клавиатура, IRQ 1',0x0B:'COM2, IRQ 3',0x0C:'COM1, IRQ 4',0x0E:'дисковод, IRQ 6',0x0F:'LPT1, IRQ 7',0x10:'BIOS: видео',0x11:'BIOS: список оборудования',0x12:'BIOS: размер памяти',0x13:'BIOS: диски',0x14:'BIOS: последовательный порт',0x16:'BIOS: клавиатура',0x17:'BIOS: принтер',0x19:'перезагрузка',0x1A:'BIOS: часы и таймер',0x1C:'пользовательский таймер (вызывается из int 8)',0x20:'DOS: завершить программу (COM)',0x21:'DOS: все функции DOS',0x27:'DOS: остаться резидентной',0x29:'DOS: быстрый вывод символа',0x2F:'мультиплексное прерывание',0x33:'драйвер мыши',0x70:'часы реального времени, IRQ 8'};
+add({
+  id:'vms16', title:'Прерывания: таблица векторов, обработчики, резиденты', src:'Зубков, 4.7, 5.8–5.9',
+  theory:`<p><b>Прерывание</b> — сигнал, по которому процессор приостанавливает текущую программу, выполняет <b>обработчик</b> и возвращается обратно. Виды:</p>
+  <ul><li><b>аппаратные</b> — от устройств (таймер, клавиатура, диск) через линии IRQ и контроллер прерываний 8259; маскируемые флагом IF;</li>
+  <li><b>программные</b> — команда <code>int n</code> (сервисы BIOS и DOS: int 10h, int 21h);</li>
+  <li><b>исключения</b> — от самого процессора: int 0 — деление на ноль, int 1 — пошаговый режим, int 3 — точка останова, int 4 — переполнение (<code>into</code>).</li></ul>
+  <h3>Таблица векторов</h3>
+  <div class="f">адрес вектора n = 0000 : (n · 4)<small>в реальном режиме таблица занимает 0000:0000–0000:03FF — 256 векторов по 4 байта (сначала смещение, потом сегмент обработчика), всего 1024 байта</small></div>
+  <h3>Что делает процессор по int n</h3>
+  <ol><li>кладёт в стек регистр флагов;</li><li>сбрасывает IF и TF (новые маскируемые прерывания запрещены);</li><li>кладёт в стек CS и IP;</li><li>загружает CS:IP из вектора n·4.</li></ol>
+  <p>Обработчик заканчивается <code>iret</code>: он снимает IP, CS и флаги. Аппаратный обработчик должен ещё сообщить контроллеру о конце обработки: <code>mov al,20h / out 20h,al</code> (EOI). <code>cli</code> / <code>sti</code> запрещают и разрешают маскируемые прерывания.</p>
+  <h3>Перехват и резидентные программы</h3>
+  <p>Перехват: прочитать старый вектор (int 21h, AH = 35h → ES:BX), записать свой (AH = 25h, DS:DX), в своём обработчике при необходимости вызвать старый. <b>Резидентная</b> (TSR) программа остаётся в памяти после завершения: int 21h, AH = 31h (DX — размер в параграфах) или int 27h. Так работали драйверы мыши, русификаторы, часы на экране.</p>`,
+  predict:{q:'По какому адресу лежит вектор прерывания int 21h?', opts:['0000:0021','0000:0084','0021:0000'], a:1,
+    why:'21h · 4 = 84h. Вектор — четыре байта: смещение обработчика по 0000:0084 и сегмент по 0000:0086.'},
+  flap:`<p><b>int 9 (клавиатура):</b> 9·4 = 36 = 24h → 0000:0024.</p>
+  <p><b>Порядок в стеке</b> после int: [SP] — IP, [SP+2] — CS, [SP+4] — флаги. Поэтому iret снимает их в обратном порядке.</p>
+  <p><b>Таблица векторов</b>: 256·4 = 1024 байта = 400h, адреса 0000:0000–0000:03FF.</p>`,
+  figCap:'Введи номер прерывания — увидишь адрес его вектора и назначение. Кнопка «Шаг» показывает, что процессор делает при int.',
+  try:'Найди вектор int 8 (таймер) и пройди все шаги вызова.',
+  ch:{q:'По какому смещению в сегменте 0000 лежит вектор прерывания int 9 (клавиатура)? (hex)', ph:'например 0040h', check:hexEq(0x24), ans:'0024h', hint:'Номер · 4.'},
+  fig(el){
+    const inp = h('input',{class:'txt',id:'vms16-n',value:'21h',style:'width:6em','aria-label':'Номер прерывания'});
+    const info = h('div',{class:'readout'}); let k = 0;
+    const stepsBox = h('div',{class:'readout'});
+    inp.addEventListener('input',()=>{ k = 0; draw(); });
+    el.append(h('div',{class:'row'}, h('label',{for:'vms16-n'},'int'), inp, U.btn('Шаг вызова ▶', ()=>{ k = Math.min(k+1, 6); draw(); }, 'pri'), U.btn('Сначала', ()=>{ k = 0; draw(); })), info, stepsBox);
+    function draw(){
+      const n = U.hex(inp.value);
+      if (!isFinite(n) || n>255){ info.innerHTML = '<span class="bad">Номер — hex от 00 до FF (например 21h).</span>'; return; }
+      info.innerHTML = `вектор int ${hx(n,2)}h: <b>0000:${hx(n*4,4)}</b> (смещение) и 0000:${hx(n*4+2,4)} (сегмент)<br>назначение: <span class="hot">${VEC[n]||'свободен или зарезервирован'}</span>`;
+      const S = [['до вызова','SP = 0100, IF = 1, CS:IP = 1000:0050'],['push FLAGS','SS:00FE ← флаги'],['IF = 0, TF = 0','маскируемые прерывания запрещены'],['push CS','SS:00FC ← 1000'],['push IP','SS:00FA ← 0052 (адрес следующей команды)'],[`CS:IP ← [0000:${hx(n*4,4)}]`,'процессор прыгает в обработчик'],['iret в конце','снимает IP, CS, FLAGS → возврат в программу']];
+      stepsBox.innerHTML = S.map(([a,b],i)=>`<span style="${i===k?'color:var(--glow);font-weight:600':i<k?'':'color:var(--ink-soft)'}">${i<k?'✓':i===k?'▶':'·'} ${a} — ${b}</span>`).join('<br>');
+    }
+    draw();
+    return null;
+  }
+});
+
+/* 17. Порты, устройства, файлы */
+const NOTES = [['до',261.63],['до♯',277.18],['ре',293.66],['ре♯',311.13],['ми',329.63],['фа',349.23],['фа♯',369.99],['соль',392],['соль♯',415.3],['ля',440],['ля♯',466.16],['си',493.88],['до²',523.25]];
+const SCAN = {Escape:0x01,Digit1:0x02,Digit2:0x03,Digit3:0x04,Digit4:0x05,Digit5:0x06,Digit6:0x07,Digit7:0x08,Digit8:0x09,Digit9:0x0A,Digit0:0x0B,Minus:0x0C,Equal:0x0D,Backspace:0x0E,Tab:0x0F,KeyQ:0x10,KeyW:0x11,KeyE:0x12,KeyR:0x13,KeyT:0x14,KeyY:0x15,KeyU:0x16,KeyI:0x17,KeyO:0x18,KeyP:0x19,BracketLeft:0x1A,BracketRight:0x1B,Enter:0x1C,ControlLeft:0x1D,KeyA:0x1E,KeyS:0x1F,KeyD:0x20,KeyF:0x21,KeyG:0x22,KeyH:0x23,KeyJ:0x24,KeyK:0x25,KeyL:0x26,Semicolon:0x27,Quote:0x28,Backquote:0x29,ShiftLeft:0x2A,Backslash:0x2B,KeyZ:0x2C,KeyX:0x2D,KeyC:0x2E,KeyV:0x2F,KeyB:0x30,KeyN:0x31,KeyM:0x32,Comma:0x33,Period:0x34,Slash:0x35,ShiftRight:0x36,AltLeft:0x38,Space:0x39,CapsLock:0x3A,F1:0x3B,F2:0x3C,F3:0x3D,F4:0x3E,F5:0x3F,F6:0x40,F7:0x41,F8:0x42,F9:0x43,F10:0x44,ArrowUp:0x48,ArrowLeft:0x4B,ArrowRight:0x4D,ArrowDown:0x50};
+add({
+  id:'vms17', title:'Порты ввода-вывода, таймер, клавиатура, файлы', src:'Зубков, 4.4, 4.7–4.8, 5.10',
+  theory:`<p>Устройства подключены к процессору через <b>порты</b> — отдельное адресное пространство 0…FFFFh. <code>in al,порт</code> читает, <code>out порт,al</code> пишет; если номер порта больше 255, его кладут в DX: <code>mov dx,3F8h / in al,dx</code>.</p>
+  <div class="tbl"><table><tr><th>Порты</th><th>Устройство</th></tr>
+  <tr><td>20h–21h</td><td>контроллер прерываний 8259 (EOI: out 20h, 20h)</td></tr>
+  <tr><td>40h–43h</td><td>таймер 8253/8254: каналы 0 (системные часы), 1, 2 (динамик), 43h — управление</td></tr>
+  <tr><td>60h, 61h</td><td>данные клавиатуры (скан-коды) и управление динамиком</td></tr>
+  <tr><td>70h–71h</td><td>CMOS и часы реального времени</td></tr>
+  <tr><td>3F8h, 2F8h · 378h</td><td>COM1, COM2 · LPT1</td></tr>
+  <tr><td>3C0h–3DFh</td><td>видеоадаптер VGA</td></tr></table></div>
+  <h3>Таймер и звук</h3>
+  <div class="f">делитель = ${fr('1 193 180','частота, Гц')}<small>на таймер подаётся 1 193 180 Гц; канал 0 с делителем 65 536 даёт 18,2 прерывания int 8 в секунду</small></div>
+  <pre class="asm">mov al,0B6h      ; канал 2, режим 3 (меандр)
+out 43h,al
+mov ax,делитель
+out 42h,al       ; младший байт
+mov al,ah
+out 42h,al       ; старший байт
+in  al,61h
+or  al,3         ; включить динамик (биты 0 и 1)
+out 61h,al</pre>
+  <h3>Клавиатура</h3>
+  <p>При нажатии клавиатура посылает в порт 60h <b>скан-код нажатия</b>, при отпускании — <b>код отпускания</b> = скан-код + 80h, и вызывает int 9. BIOS переводит их в коды символов и кладёт в буфер. Чтение: int 16h, AH = 0 — ждать клавишу (AL — ASCII, AH — скан-код), AH = 1 — проверить буфер (ZF = 1, если пусто). DOS: int 21h, AH = 01h (с эхом), 07h/08h (без эха), 0Ah (строка). Мышь — int 33h (AX = 0 — инициализация, 1 — показать курсор, 3 — координаты и кнопки).</p>
+  <h3>Файлы через DOS (int 21h)</h3>
+  <div class="tbl"><table><tr><th>AH</th><th>Функция</th></tr>
+  <tr><td>3Ch</td><td>создать файл (DS:DX — имя ASCIIZ, CX — атрибуты) → AX = дескриптор</td></tr>
+  <tr><td>3Dh</td><td>открыть (AL: 0 — чтение, 1 — запись, 2 — оба)</td></tr>
+  <tr><td>3Fh / 40h</td><td>чтение / запись: BX — дескриптор, CX — байт, DS:DX — буфер</td></tr>
+  <tr><td>3Eh</td><td>закрыть</td></tr>
+  <tr><td>41h · 42h</td><td>удалить · переместить указатель (lseek)</td></tr></table></div>
+  <p>Ошибка — CF = 1, в AX код ошибки. Стандартные дескрипторы: 0 — клавиатура, 1 — экран, 2 — ошибки.</p>`,
+  predict:{q:'Сколько раз в секунду вызывается прерывание таймера int 8?', opts:['≈ 1000','≈ 18,2','ровно 60'], a:1,
+    why:'1 193 180 / 65 536 ≈ 18,2 Гц. Поэтому в DOS время измерялось «тиками» по 55 мс.'},
+  flap:`<p><b>Нота ля, 440 Гц:</b> 1 193 180 / 440 ≈ 2711,8 → делитель <b>2712</b> (A98h).</p>
+  <p><b>Скан-коды:</b> клавиша A — 1Eh, её отпускание — 1Eh + 80h = <b>9Eh</b>.</p>
+  <p><b>Открыть файл для чтения:</b> mov ah,3Dh / mov al,0 / lea dx,fname / int 21h / jc ошибка / mov handle,ax.</p>`,
+  figCap:'Клавиатура пианино: каждая клавиша показывает делитель таймера и звучит через динамик компьютера. Ниже — нажми любую клавишу и увидишь её скан-коды.',
+  try:'Сыграй «ля» и сравни делитель с расчётом. Потом нажми клавишу A в поле ниже.',
+  ch:{q:'Какой делитель нужно загрузить в канал 2 таймера, чтобы динамик зазвучал нотой ля (440 Гц)? (десятичное, округлите)', check:s=>U.near(s,2712,1), ans:'2712 (1 193 180 / 440 ≈ 2711,8)', hint:'Делитель = 1 193 180 / частота.'},
+  fig(el){
+    let ctx = null;
+    const out = h('div',{class:'readout'}), keys = h('div',{class:'row',style:'gap:3px'});
+    NOTES.forEach(([n,f])=>{ const black = n.includes('♯');
+      const b = h('button',{type:'button','aria-label':'нота '+n,style:`width:${black?30:40}px;height:${black?70:96}px;border:1.5px solid var(--ink);border-radius:0 0 5px 5px;cursor:pointer;background:${black?'var(--ink)':'var(--paper)'};color:${black?'var(--paper)':'var(--ink)'};font:600 11px var(--f-mono);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px`},n);
+      b.onclick = () => { const d = Math.round(1193180/f), real = 1193180/d;
+        try { ctx = ctx || new (window.AudioContext||window.webkitAudioContext)(); const o = ctx.createOscillator(), gn = ctx.createGain(); o.type='square'; o.frequency.value = real; gn.gain.value = .06; o.connect(gn).connect(ctx.destination); o.start(); gn.gain.setTargetAtTime(0, ctx.currentTime+.25, .05); o.stop(ctx.currentTime+.45); } catch(e){}
+        out.innerHTML = `нота ${n}: ${f} Гц → делитель 1 193 180 / ${f} = <b>${d}</b> = ${hx(d,4)}h · реальная частота ${real.toFixed(2)} Гц<br><code>mov ax,${d} / out 42h,al / mov al,ah / out 42h,al</code>`; };
+      keys.append(b); });
+    const kin = h('input',{class:'txt',id:'vms17-k',placeholder:'нажми здесь любую клавишу','aria-label':'Поле для проверки скан-кода',style:'width:100%',readonly:true});
+    const kout = h('div',{class:'readout'},'Скан-код появится здесь.');
+    kin.addEventListener('keydown', e => { const sc = SCAN[e.code]; if (e.code!=='Tab') e.preventDefault();
+      kout.innerHTML = sc!=null ? `клавиша <b>${esc(e.key===' '?'Space':e.key)}</b>: нажатие <b>${hx(sc,2)}h</b>, отпускание <span class="hot">${hx(sc|0x80,2)}h</span>` : `для клавиши ${esc(e.code)} скан-кода нет в учебной таблице`; });
+    el.append(keys, out, kin, kout);
+    out.innerHTML = 'Нажми клавишу пианино (звук включится после щелчка).';
+    return null;
+  }
+});
+
+/* 18. Защищённый режим */
+add({
+  id:'vms18', title:'Защищённый режим: селекторы, дескрипторы, страницы', src:'Зубков, гл. 6, 10',
+  theory:`<p>Начиная с 80286, у процессоров Intel есть <b>защищённый режим</b>: память больше 1 МБ (у 80386 — 4 ГБ), защита программ друг от друга, многозадачность, виртуальная память. В реальном режиме процессор оказывается после включения, как 8086.</p>
+  <h3>Селектор и дескриптор</h3>
+  <p>Сегментный регистр хранит не адрес, а <b>селектор</b> — номер записи в таблице дескрипторов:</p>
+  <div class="f">селектор = индекс (13 бит) | TI (1 бит) | RPL (2 бита)<small>TI = 0 — глобальная таблица GDT, 1 — локальная LDT; RPL — запрашиваемый уровень привилегий; адрес дескриптора = база таблицы + индекс · 8</small></div>
+  <p><b>Дескриптор</b> (8 байт) описывает сегмент: 32-битная <b>база</b>, 20-битный <b>предел</b> (размер; с битом G = 1 — в страницах по 4 КБ, до 4 ГБ), тип (код, данные, системный), права (чтение, запись), <b>DPL</b> — уровень привилегий, бит присутствия P. Линейный адрес = база сегмента + смещение.</p>
+  <h3>Уровни привилегий</h3>
+  <p>Четыре кольца: 0 — ядро ОС, 3 — пользовательские программы (1 и 2 почти не используются). Код с меньшими правами не может обратиться к данным и коду с большими: процессор генерирует исключение общей защиты (#GP, 13).</p>
+  <h3>Страничная адресация (80386+)</h3>
+  <div class="f">линейный адрес = каталог (10 бит) | таблица (10 бит) | смещение (12 бит)<small>CR3 указывает на каталог страниц; каждая таблица описывает 1024 страницы по 4 КБ. Отсутствующая страница вызывает исключение #PF — так работает подкачка с диска</small></div>
+  <h3>Вход и прерывания</h3>
+  <p>Перейти в защищённый режим: подготовить GDT, загрузить <code>lgdt</code>, запретить прерывания, установить бит <b>PE</b> в регистре CR0, сделать дальний переход, чтобы загрузить селектор кода. Вместо таблицы векторов работает <b>IDT</b> — таблица дескрипторов прерываний (8 байт на шлюз), её загружает <code>lidt</code>.</p>
+  <p>Ещё режимы: <b>V86</b> — задача реального режима внутри защищённого (окно DOS в Windows 9x), <b>нереальный</b> — реальный режим с 4-гигабайтными пределами сегментов. В DOS 32-битные программы работали через <b>DOS-расширители</b> по интерфейсам VCPI и DPMI.</p>`,
+  predict:{q:'Сколько уровней привилегий в защищённом режиме x86?', opts:['2','4','8'], a:1,
+    why:'Кольца 0–3: 0 — самый привилегированный (ядро), 3 — пользовательский. Windows и Linux используют в основном 0 и 3.'},
+  flap:`<p><b>Селектор 001Bh</b> = 0000 0000 0001 1011: RPL = 11 = 3, TI = 0 (GDT), индекс = 0000000000011 = <b>3</b>. Дескриптор лежит по адресу база GDT + 3·8 = база + 18h.</p>
+  <p><b>Линейный адрес 00403004h</b> = 0000 0000 01 | 00 0000 0011 | 0000 0000 0100: каталог 1, таблица 3, смещение 4.</p>`,
+  figCap:'Слева — разбор селектора на поля. Справа — разбор линейного адреса на каталог, таблицу и смещение.',
+  try:'Введи селектор 0010h (обычный код ядра) и 0023h (данные пользователя).',
+  ch:{q:'Селектор равен 001Bh. Найдите индекс дескриптора в таблице.', check:dec(3), ans:'3 (RPL = 3, TI = 0 — GDT)', hint:'Отбрось младшие 3 бита: индекс = селектор >> 3.'},
+  fig(el){
+    const is = h('input',{class:'txt',id:'vms18-s',value:'001Bh',style:'width:7em','aria-label':'селектор'}), ig = h('input',{class:'txt',id:'vms18-g',value:'00010000h',style:'width:9em','aria-label':'база GDT'});
+    const il = h('input',{class:'txt',id:'vms18-l',value:'00403004h',style:'width:9em','aria-label':'линейный адрес'});
+    const o1 = h('div',{class:'readout'}), o2 = h('div',{class:'readout'});
+    [is,ig,il].forEach(i=>i.addEventListener('input',()=>draw()));
+    el.append(h('div',{class:'row'}, h('label',{for:'vms18-s'},'селектор'), is, h('label',{for:'vms18-g'},'база GDT'), ig), o1, h('div',{class:'row'}, h('label',{for:'vms18-l'},'линейный адрес'), il), o2);
+    function draw(){
+      const s = U.hex(is.value), gb = U.hex(ig.value), la = U.hex(il.value);
+      if (!isFinite(s)||s>0xFFFF) o1.innerHTML = '<span class="bad">Селектор — 16 бит в hex.</span>';
+      else { const b = bin(s,16); o1.innerHTML = `<span style="color:var(--pen)">${b.slice(0,13)}</span> <span style="color:var(--glow)">${b[13]}</span> <span style="color:var(--stamp)">${b.slice(14)}</span><br>индекс = <b>${s>>3}</b> · TI = ${(s>>2)&1} (${(s>>2)&1?'LDT':'GDT'}) · RPL = ${s&3} (кольцо ${s&3})${isFinite(gb)?`<br>дескриптор: ${hx(gb,8)}h + ${s>>3}·8 = <span class="hot">${hx(gb+(s>>3)*8,8)}h</span>`:''}`; }
+      if (!isFinite(la)||la>0xFFFFFFFF) o2.innerHTML = '<span class="bad">Линейный адрес — 32 бита в hex.</span>';
+      else { const b = bin(la,32); o2.innerHTML = `<span style="color:var(--pen)">${b.slice(0,10)}</span> <span style="color:var(--stamp)">${b.slice(10,20)}</span> <span>${b.slice(20)}</span><br>каталог = <b>${la>>>22}</b> · таблица = <b>${(la>>>12)&0x3FF}</b> · смещение в странице = <b>${hx(la&0xFFF,3)}h</b>`; }
+    }
+    draw();
+    return null;
+  }
+});
+
+/* 19. Защита лабораторных 1–4 */
+const LABQ = [
+  [1,'Чем файл отличается от каталога?','Файл — именованная область данных на диске. Каталог — особый файл со списком имён файлов и подкаталогов и сведениями о них.'],
+  [1,'Каков формат имени файла в DOS?','8.3: до 8 символов имени и до 3 символов расширения через точку; без пробелов и символов * ? / \\ : < > |.'],
+  [1,'Что означают символы * и ? в масках?','* — любое число любых символов, ? — ровно один символ (в конце имени — один или ни одного).'],
+  [1,'Как удалить каталог, в котором есть файлы?','Сначала удалить файлы (DEL KAT\\*.*), затем RD KAT — RD удаляет только пустой каталог.'],
+  [1,'Как в DOSBox подключить папку и перейти на диск?','mount c C:\\TASM, затем C:.'],
+  [1,'Какие функциональные клавиши NC вы использовали?','F3 — просмотр, F4 — редактирование, F5 — копирование, F6 — перенос/переименование, F7 — создать каталог, F8 — удалить; Ctrl+F3…F6 — сортировка по имени, расширению, времени, размеру.'],
+  [1,'Как работает CHOICE и чему равен ERRORLEVEL?','CHOICE /C:символы ждёт нажатия одной из клавиш списка; ERRORLEVEL = порядковый номер клавиши в списке.'],
+  [1,'Почему проверки IF ERRORLEVEL ставят по убыванию?','IF ERRORLEVEL n истинно при коде ≥ n, поэтому проверка на 1 перехватила бы все варианты.'],
+  [1,'Чем CALL отличается от простого запуска BAT-файла?','После CALL выполнение возвращается в вызвавший пакетный файл, а без CALL управление не возвращается.'],
+  [2,'Из каких сегментов состоит программа на ассемблере?','Сегмент кода, данных и стека (в EXE — отдельные; в COM всё в одном сегменте).'],
+  [2,'Что делает директива ASSUME?','Сообщает ассемблеру, какой сегментный регистр с каким сегментом связан; сами регистры она не загружает.'],
+  [2,'Зачем в начале EXE-программы mov ax,DSEG / mov ds,ax?','DOS при запуске записывает в DS адрес PSP, а не сегмента данных; константу нельзя записать в DS напрямую — только через регистр общего назначения.'],
+  [2,'Что такое PSP и какого он размера?','Префикс программного сегмента — 256 байт (100h), создаётся DOS перед программой: командная строка, адрес возврата, служебные поля.'],
+  [2,'Чем COM-программа отличается от EXE?','COM — один сегмент до 64 КБ, без заголовка, начинается с ORG 100h, CS = DS = SS = ES; EXE — несколько сегментов, есть заголовок с таблицей настроек.'],
+  [2,'Какие этапы проходит программа от исходного текста до запуска?','tasm (ассемблирование: .asm → .obj), tlink (компоновка: .obj → .exe, с /t → .com), запуск; отладка в TD (F7 — шаг).'],
+  [2,'Что делают функции 09h, 01h и 4Ch прерывания 21h?','09h — вывод строки DS:DX до символа $; 01h — ввод символа с эхом в AL; 4Ch — завершение программы с кодом AL.'],
+  [2,'Как найти физический адрес сегмента?','Сегментный адрес · 16 (сдвиг на одну hex-цифру влево) + смещение.'],
+  [3,'Как преобразовать введённую цифру из ASCII в число?','Вычесть код символа «0» (30h): sub al,\'0\'.'],
+  [3,'Как из цифр собирается многозначное число?','число = число·10 + очередная цифра, до нажатия Enter (код 13).'],
+  [3,'Зачем при выводе числа используется стек?','Деление на 10 даёт цифры с конца; PUSH/POP (LIFO) выводят их в правильном порядке.'],
+  [3,'Почему перед div si обнуляют DX?','div si делит 32-битное DX:AX; мусор в DX исказит результат или вызовет переполнение деления.'],
+  [3,'Как очистить экран и поставить курсор?','int 10h: AX = 0600h, BH — атрибут, CX = 0000h, DX = 184Fh — очистка; AH = 02h, BH = 0, DH — строка, DL — столбец — курсор.'],
+  [3,'Где находится переменная num?','Она первая в сегменте данных, поэтому её адрес DS:0000.'],
+  [3,'Какое наибольшее число вводится в 16-битный регистр?','65535; больше — «заворачивается» по модулю 65536 без сообщения.'],
+  [4,'Как установить видеорежим VGA и SVGA?','VGA: AH = 00h, AL = номер, int 10h (13h — 320×200×256). SVGA (VESA): AX = 4F02h, BX = номер режима, int 10h; успех — AX = 004Fh.'],
+  [4,'Почему некоторые режимы не устанавливаются?','Не хватает видеопамяти (кадр = ширина·высота·байт на точку) или видеокарта/эмулятор не поддерживает режим; 4F02h возвращает AX ≠ 004Fh.'],
+  [4,'Как вывести цветной текст в графическом режиме?','int 10h, AH = 09h: AL — символ, BL — цвет, CX = 1; курсор двигать функцией 02h.'],
+  [4,'Чем атрибут текстового режима отличается от цвета в графическом?','В тексте байт атрибута: мигание, фон, яркость, цвет символа. В графике BL — номер цвета точек символа (бит 7 — XOR).'],
+  [4,'Сколько памяти нужно для кадра 640×480 при 256 цветах?','640·480·1 = 307 200 байт ≈ 300 КБ — 5 окон по 64 КБ.']
+];
+add({
+  id:'vms19', title:'Защита лабораторных 1–4: вопросы и ответы', src:'Лабораторные работы 1–4',
+  theory:`<p>На экзамене по ВМиС часто спрашивают по лабораторным: что делает каждая команда, почему программа написана именно так, что было бы, если… Эта глава собирает всё, что нужно для защиты, в одном месте.</p>
+  <h3>Лаба 1. DOS, файлы, пакетные файлы</h3>
+  <p>Имена 8.3, дерево каталогов, команды DIR, CD, MD, RD, COPY, MOVE, DEL, REN, TYPE; маски * и ?; Norton Commander и его клавиши; пакетный файл с CHOICE, IF ERRORLEVEL, IF EXIST, CALL. Подробно — главы 5 и 6.</p>
+  <h3>Лаба 2. Структура программы</h3>
+  <p>Сегменты, ASSUME, загрузка DS, вывод строки int 21h/09h, COM и EXE, PSP, tasm → tlink → td, адреса и размеры сегментов. Подробно — глава 12.</p>
+  <h3>Лаба 3. Ввод и вывод чисел</h3>
+  <p>ASCII-коды цифр, число = число·10 + цифра, MUL и DIV, стек для вывода, int 10h для очистки экрана и курсора, рамка из псевдографики. Подробно — главы 13 и 16.</p>
+  <h3>Лаба 4. Видеорежимы</h3>
+  <p>int 10h, AH = 00h для VGA и AX = 4F02h для VESA, проверка AX = 004Fh, объём кадра и видеопамять, вывод цветного текста в графике, перебор режимов массивом и процедурой. Подробно — главы 16 и 17.</p>
+  <div class="f">mess db 'Privet',0Dh,0Ah,'$' &nbsp;→&nbsp; 6 + 3 = 9 байт<small>0Dh — возврат каретки, 0Ah — перевод строки, '$' — конец строки для функции 09h</small></div>`,
+  predict:{q:'Какой командой из файла privet.asm получают объектный файл?', opts:['tlink privet','tasm privet','td privet'], a:1,
+    why:'tasm ассемблирует .asm → .obj; tlink компонует .obj → .exe (или .com с ключом /t); td — отладчик.'},
+  flap:`<p>Работай с карточками справа: отвечай вслух, потом открывай ответ. «Знаю» убирает карточку из колоды, «Повторить» отправляет её в конец. Фильтр по номеру лабы помогает готовиться к конкретной защите.</p>
+  <p>Перед экзаменом пройди колоду целиком дважды: в первый раз отмечай честно, во второй — только то, что осталось.</p>`,
+  figCap:`Колода из ${LABQ.length} карточек по лабораторным 1–4. Прогресс сохраняется в браузере.`,
+  try:'Выбери лабу, отвечай вслух и только потом открывай ответ.',
+  ch:{q:'Сколько байт занимает строка <code>mess db \'Privet\',0Dh,0Ah,\'$\'</code>?', check:dec(9), ans:'9', hint:'6 букв + 0Dh + 0Ah + $.'},
+  fig(el){
+    const KEYK = 'bit-labcards-v1'; let known = {};
+    try { known = JSON.parse(localStorage.getItem(KEYK)||'{}'); } catch(e){}
+    const save = () => { try { localStorage.setItem(KEYK, JSON.stringify(known)); } catch(e){} };
+    let lab = 0, deck = [], open = false;
+    const build = () => { deck = LABQ.map((q,i)=>({q,i})).filter(x=>(!lab||x.q[0]===lab) && !known[x.i]); open = false; draw(); };
+    const card = h('div',{style:'min-height:170px;padding:18px;border:1.5px solid var(--ink);border-radius:6px;background:var(--paper-2);box-shadow:4px 4px 0 var(--stamp-wash);display:grid;gap:10px;align-content:start'});
+    const stat = h('div',{class:'readout'});
+    el.append(h('div',{class:'row'}, U.select('vms19-lab',['все лабы','лаба 1','лаба 2','лаба 3','лаба 4'], v=>{lab=v; build();}),
+      U.btn('Начать заново', ()=>{ for (const x of LABQ.map((q,i)=>({q,i}))) if (!lab||x.q[0]===lab) delete known[x.i]; save(); build(); })), card, stat);
+    function draw(){
+      const total = LABQ.filter(q=>!lab||q[0]===lab).length, done = total - deck.length;
+      stat.innerHTML = `знаю: <b>${done}</b> из ${total}${deck.length?` · осталось ${deck.length}`:''}`;
+      if (!deck.length){ card.replaceChildren(h('div',{class:'lbl'},'Колода пройдена!'), h('p',{style:'margin:0'},'Все карточки этой лабы отмечены как известные. «Начать заново» вернёт их.')); return; }
+      const {q} = deck[0];
+      const ans = h('p',{style:'margin:0;font-size:15px',hidden:!open}, q[2]);
+      card.replaceChildren(h('div',{class:'part-lbl'},'Лаба '+q[0]), h('div',{style:'font:700 19px/1.3 var(--f-display)'}, q[1]), ans,
+        open ? h('div',{class:'row'}, U.btn('Знаю ✓', ()=>{ known[deck[0].i] = 1; save(); deck.shift(); open = false; draw(); },'pri'), U.btn('Повторить', ()=>{ deck.push(deck.shift()); open = false; draw(); }))
+             : U.btn('Показать ответ', ()=>{ open = true; draw(); }));
+    }
+    build();
+    return null;
+  }
+});
+
+/* Дополнительные задачи */
+const MORE = {
+  vms11:[P('Зубков, 2.4','Какое число записано в формате single как 41200000h?',dec(10),'10','Порядок 130 − 127 = 3, мантисса 1,01₂.'),P('Зубков, 2.4','Запишите 0,75 в формате single (hex).',hexEq(0x3F400000),'3F400000h','0,75 = 1,1₂·2⁻¹; порядок 126.','8 hex-цифр'),P('Зубков, 2.4','Сколько байт занимает число расширенной точности FPU (dt)?',dec(10),'10 (80 бит)','80 бит / 8.')],
+  vms12:[P('курс ВМиС','Сколько гигабайт адресует 32-разрядная шина адреса?',dec(4),'4 ГБ','2³² = 4·2³⁰.'),P('курс ВМиС','Какой разрядности шина данных у 8086?',dec(16),'16 бит','Сколько бит процессор передаёт за одно обращение к памяти?'),P('курс ВМиС','Сколько байт в очереди команд 8086?',dec(6),'6 байт','Её заполняет блок BIU.')],
+  vms13:[P('Зубков, 2.3.2','AX = 1000, BL = 10, выполнили <code>div bl</code>. Чему равен AL?',dec(100),'100 (AH = 0)','div bl: AL = AX / BL.'),P('Зубков, 2.3.2','AL = 200, BL = 2, выполнили <code>mul bl</code>. Чему равен AX?',dec(400),'400 (190h), CF = OF = 1','Произведение байтов — слово в AX.'),P('Зубков, 2.3.2','AL = F0h. Что окажется в AX после <code>cbw</code>? (hex)',hexEq(0xFFF0),'FFF0h — знак расширен','Старший бит AL = 1 → AH = FFh.')],
+  vms14:[P('Зубков, 2.3.5','AL = 96h. Чему равен AL после <code>sar al,1</code>? (hex)',hexEq(0xCB),'CBh (−106 / 2 = −53)','SAR повторяет знаковый бит.'),P('Зубков, 2.3.5','AL = 85h. Чему равен AL после <code>rol al,1</code>? (hex)',hexEq(0x0B),'0Bh, CF = 1','Старший бит переходит в младший.'),P('Зубков, 2.3.4','Какой маской через <code>or</code> установить в AL биты 0 и 7? (hex)',hexEq(0x81),'81h','1000 0001.')],
+  vms15:[P('Зубков, 2.3.7','AX = 5, BX = −3 (FFFDh), <code>cmp ax,bx</code>. Сработает ли <code>jl</code>? (да/нет)',s=>/^\s*нет([\s,.!]|$)/i.test(s),'нет: со знаком 5 &gt; −3','JL — знаковое «меньше».','да или нет'),P('Зубков, 2.3.7','<code>mov cx,0</code>, затем цикл с <code>loop</code>. Сколько раз выполнится тело?',dec(65536),'65 536','loop сначала уменьшает CX: 0 − 1 = FFFFh.'),P('Зубков, 5.2','Параметр положили в стек перед ближним call. После <code>push bp / mov bp,sp</code> он лежит по адресу [bp + ?]',dec(4),'[bp+4]','[bp] — старый BP, [bp+2] — адрес возврата.')],
+  vms16:[P('Зубков, 5.8','Сколько байт занимает таблица векторов прерываний реального режима?',dec(1024),'1024 (256 · 4)','256 векторов по 4 байта.'),P('Зубков, 5.8','Какое прерывание вызывает деление на ноль? (номер)',dec(0),'0 (int 0)','Это исключение процессора.'),P('Зубков, 5.8','Какая функция int 21h (AH = ?) устанавливает вектор прерывания? (hex)',hexEq(0x25),'25h (а 35h — читает)','DS:DX — новый обработчик, AL — номер.')],
+  vms17:[P('Зубков, 4.4','Скан-код клавиши A — 1Eh. Какой код придёт в порт 60h при её отпускании? (hex)',hexEq(0x9E),'9Eh','Код отпускания = код нажатия + 80h.'),P('Зубков, 4.8','Какая функция int 21h открывает существующий файл? (AH, hex)',hexEq(0x3D),'3Dh','3Ch создаёт, 3Dh открывает.'),P('Зубков, 5.10','Какой порт читают, чтобы получить скан-код клавиатуры? (hex)',hexEq(0x60),'60h','Порт данных клавиатуры.')],
+  vms18:[P('Зубков, гл. 10','Сколько байт занимает дескриптор сегмента?',dec(8),'8','Индекс умножают на это число.'),P('Зубков, гл. 10','Сколько байт в странице при страничной адресации 80386?',dec(4096),'4096 (4 КБ)','Смещение в странице — 12 бит.'),P('Зубков, гл. 10','Линейный адрес 00403004h. Какой индекс в таблице страниц (средние 10 бит)?',dec(3),'3 (каталог 1, смещение 4)','(адрес >> 12) & 3FFh.')],
+  vms19:[P('Лаба 2','Какую функцию int 21h (AH, hex) вызывают для вывода строки до символа $?',hexEq(0x09),'09h','DS:DX — адрес строки.'),P('Лаба 3','Какой ASCII-код (десятичный) у клавиши Enter?',dec(13),'13 (0Dh)','Его и сравнивают в цикле ввода.'),P('Лаба 4','Номер VGA-режима 320×200, 256 цветов (hex)?',hexEq(0x13),'13h','Самый популярный игровой режим.')]
+};
+for (const L of BOOKS.vms.lessons) if (MORE[L.id]) L.more = MORE[L.id];
+
+/* Истории для новых глав */
+const HOOK = {
+  vms11:{eye:'Ариан-5, 4 июня 1996 года', title:'Ракета, которую погубило преобразование числа', html:`<p>Через 37 секунд после старта европейская ракета Ариан-5 сошла с курса и самоуничтожилась. Причина — одна строка кода: 64-битное число с плавающей запятой (горизонтальная скорость) преобразовали в 16-битное целое со знаком. Число оказалось больше 32 767.</p><p class="big">Переполнение → отказ навигации</p><p>Код перенесли с Ариан-4, где скорость была меньше. Форматы чисел — не скучная теория, а вопрос, долетит ли ракета.</p>`},
+  vms12:{eye:'Джон фон Нейман, 1945', title:'Программа, которая лежит в памяти', html:`<p>Первый электронный компьютер ENIAC перепрограммировали, перетыкая кабели и щёлкая переключателями, — это занимало дни. В «Первом проекте отчёта об EDVAC» фон Нейман описал другую идею: хранить программу в той же памяти, что и данные.</p><p class="big">Команды = числа в памяти</p><p>Так устроены почти все компьютеры с тех пор, включая твой ноутбук и телефон.</p>`},
+  vms13:{eye:'Intel Pentium, 1994', title:'Ошибка деления за 475 миллионов долларов', html:`<p>Профессор Томас Найсли заметил, что новый Pentium иногда неверно делит числа с плавающей запятой: в таблице, по которой процессор подбирал цифры частного, не хватало пяти значений.</p><p class="big">4195835 / 3145727 ≈ 1,33373…, а не 1,33382…</p><p>Intel пришлось бесплатно заменять процессоры: убыток составил 475 миллионов долларов. С тех пор арифметику процессоров проверяют формальными методами.</p>`},
+  vms14:{eye:'Трюк программистов', title:'Обмен без третьей переменной', html:`<p>Как поменять местами AX и BX без временного регистра? Тремя XOR:</p><p class="big">xor ax,bx · xor bx,ax · xor ax,bx</p><p>А <code>xor ax,ax</code> обнуляет регистр короче, чем <code>mov ax,0</code>: 2 байта против 3. Поэтому компиляторы до сих пор так пишут. Логические команды — это маленькие фокусы над битами.</p>`},
+  vms15:{eye:'Эдсгер Дейкстра, 1968', title:'«Оператор goto считается вредным»', html:`<p>Дейкстра призвал отказаться от goto в языках высокого уровня в пользу if, while и процедур. Но процессор устроен иначе: у него есть только переходы.</p><p class="big">if, for, while → cmp + jcc</p><p>Любой цикл и любое ветвление, которые ты пишешь на Си или Паскале, компилятор превращает в сравнения и условные переходы из этой главы.</p>`},
+  vms16:{eye:'Turbo Pascal, конец 1990-х', title:'Runtime error 200 на быстрых процессорах', html:`<p>Старые программы на Turbo Pascal стали падать с ошибкой «Runtime error 200» на процессорах быстрее примерно 200 МГц. Модуль CRT при запуске измерял скорость компьютера для процедуры Delay, и счётчик оказывался слишком большим — частное деления не помещалось в регистр.</p><p class="big">int 0 — «деление на ноль»</p><p>Процессор вызывал исключение 0, хотя на ноль никто не делил. Прерывания — это не только клавиатура и таймер, но и аварии.</p>`},
+  vms17:{eye:'IBM PC, 1981', title:'Откуда взялась частота 1 193 180 Гц', html:`<p>Странное число не случайно. Кварц на плате IBM PC работал на 14,31818 МГц — это в 4 раза больше частоты цветовой поднесущей телевизора NTSC, такие кварцы были дешёвыми.</p><p class="big">14 318 180 / 12 = 1 193 180 Гц</p><p>Таймер получил частоту кварца, делённую на 12. На этом таймере держались системные часы, музыка из динамика и даже задержки в играх.</p>`},
+  vms18:{eye:'DOOM, 1993', title:'Как DOS-игра получила 4 ГБ памяти', html:`<p>DOS работала в реальном режиме с её 640 КБ. Но DOOM требовал больше. Он запускался через DOS-расширитель DOS/4GW, который переводил процессор в защищённый режим и давал игре плоскую 32-битную память.</p><p class="big">селекторы вместо сегментов</p><p>Защищённый режим — то, на чём работают все современные ОС: Windows, Linux, macOS.</p>`},
+  vms19:{eye:'Совет к экзамену', title:'Лабы — твоя самая сильная сторона', html:`<p>Ты сам набирал эти программы, сам ловил ошибки в TD и сам смотрел, как DOSBox ругается на неподдерживаемые режимы. На экзамене это превращается в уверенные ответы: «я делал, и вот почему так».</p><p class="big">${LABQ.length} вопросов — по ним спросят</p><p>Пройди колоду карточек справа, а за подробностями возвращайся в главы про DOS, структуру программы, ввод-вывод и видеорежимы.</p>`}
+};
+for (const L of BOOKS.vms.lessons) if (HOOK[L.id]) L.hook = HOOK[L.id];
+
+/* Итоги и вопросы к экзамену для всех глав «Бита» (с вопросами по лабораторным) */
+const SUM = {
+  vms1:['Позиционная система: вес цифры = основание в степени номера разряда.','В десятичную — по развёрнутой форме Σaᵢqⁱ.','Из десятичной: целую часть делить на q (остатки снизу вверх), дробную умножать на q (целые части сверху вниз).','Конечная десятичная дробь может стать бесконечной двоичной (0,1).'],
+  vms2:['2 ↔ 8 — триадами, 2 ↔ 16 — тетрадами, от запятой в обе стороны.','Нули дописывают слева от целой части и справа от дробной.','BCD: каждая десятичная цифра — тетрада 0000…1001; байт хранит 0…99.','Двоичное сложение: 1 + 1 = 10 (пишем 0, переносим 1).'],
+  vms3:['Положительные числа во всех кодах одинаковы.','Обратный код: инверсия модуля; дополнительный: обратный + 1.','Байт в доп. коде: −128…127; −1 = FFh.','Из доп. кода: вычесть 1, инвертировать, поставить минус.','CF — перенос (беззнаковые), OF — переполнение (знаковые).'],
+  vms4:['Имя 8.3; полное имя — путь от корня.','RD удаляет только пустой каталог.','* — любые символы, ? — один символ.','DOSBox: mount c C:\\TASM, затем C:.','NC: F5 копия, F6 перенос, F7 каталог, F8 удаление; Ctrl+F3…F6 — сортировка.'],
+  vms5:['ERRORLEVEL после CHOICE — номер клавиши в списке /C.','IF ERRORLEVEL n — это «≥ n», проверки по убыванию.','CALL — вызов с возвратом; GOTO — переход к :метке.','@ECHO OFF скрывает вывод команд.'],
+  vms6:['Сегменты кода, данных, стека; ASSUME связывает их с регистрами.','DS загружают через регистр: mov ax,dseg / mov ds,ax.','PSP — 256 байт; COM начинается с ORG 100h.','tasm → .obj → tlink → .exe (/t → .com) → td.','int 21h: 09h — строка до $, 01h — символ, 4Ch — выход.'],
+  vms7:['AX, BX, CX, DX делятся на H и L; SI, DI — индексы; SP, BP — стек; CS, DS, SS, ES — сегменты.','Физический адрес = сегмент·16 + смещение, 20 бит, 1 МБ.','Один адрес — много пар сегмент:смещение.','Способы адресации: регистровая, непосредственная, прямая, косвенная, по базе, индексная, базово-индексная.'],
+  vms8:['Цифра = ASCII − 30h; Enter = 0Dh.','Ввод: число = число·10 + цифра.','Вывод: div 10, остатки в стек, затем pop.','div si делит DX:AX — DX обнуляют.','16-битный регистр «заворачивается» после 65535.'],
+  vms9:['Текстовый режим: B800:0000, 2 байта на символ.','Атрибут: мигание | фон RGB | яркость | символ RGB.','int 10h: 00h режим, 02h курсор, 06h очистка, 09h символ с атрибутом.','Экран 80×25 = 4000 байт.'],
+  vms10:['VGA: AH = 00h; SVGA: AX = 4F02h, BX = номер.','Успех VESA — AX = 004Fh.','Кадр = W·H·байт на точку; окно 64 КБ в A000h.','13h — 320×200×256 = 64 000 байт, ровно в сегмент.'],
+  vms11:['X = (−1)ˢ·1,M·2<sup>E−смещение</sup>; единица мантиссы скрыта.','single: 1 + 8 + 23, смещение 127; double: 1 + 11 + 52, смещение 1023.','Особые значения: ±0, ±∞, NaN, денормализованные.','FPU: стек из восьми 80-битных регистров ST(0)…ST(7).'],
+  vms12:['Принципы фон Неймана: двоичность, программное управление, однородность памяти, адресность.','Шины: адреса (сколько памяти), данных (сколько бит за раз), управления.','Цикл: выборка → декодирование → операнды → исполнение → запись.','8086: BIU + EU, очередь 6 байт; иерархия памяти от регистров до диска.'],
+  vms13:['mov: нельзя память ← память и константу в сегментный регистр.','inc/dec не меняют CF; cmp — вычитание без записи.','mul/div: байт — AX, слово — DX:AX.','CF — беззнаковый перенос, OF — знаковое переполнение, ZF, SF, PF, AF.','Деление на 0 и переполнение частного → int 0.'],
+  vms14:['and — сбросить биты, or — установить, xor — инвертировать, test — проверить.','shl = ×2, shr = беззнаковое /2, sar = знаковое /2.','rol/ror — по кругу, rcl/rcr — по кругу через CF.','Логические команды обнуляют CF и OF.'],
+  vms15:['ja/jb — беззнаковые, jg/jl — знаковые.','loop: CX − 1 и переход при CX ≠ 0; при CX = 0 — 65 536 раз.','push: SP − 2; pop: SP + 2; стек растёт вниз.','call кладёт адрес возврата; ret его снимает; параметры — [bp+4]…'],
+  vms16:['Аппаратные (IRQ, 8259), программные (int n), исключения (0, 1, 3, 4).','Вектор n — по адресу 0000:n·4, 4 байта: смещение и сегмент.','int: push FLAGS, IF = TF = 0, push CS, push IP, переход; iret — обратно.','EOI: out 20h,20h; перехват — 35h/25h; резидент — 31h или int 27h.'],
+  vms17:['in/out; порт &gt; 255 — через DX.','Таймер 1 193 180 Гц; делитель = 1 193 180/f; int 8 — 18,2 раза в секунду.','Скан-код отпускания = нажатия + 80h; порт 60h.','Файлы int 21h: 3Ch создать, 3Dh открыть, 3Fh читать, 40h писать, 3Eh закрыть; ошибка — CF = 1.'],
+  vms18:['Селектор = индекс | TI | RPL; дескриптор 8 байт в GDT/LDT.','Дескриптор: база, предел, права, DPL.','Кольца 0–3; нарушение — исключение #GP.','Страницы 4 КБ: каталог | таблица | смещение (10 | 10 | 12 бит); CR3.','Вход: lgdt, бит PE в CR0, дальний переход; прерывания — через IDT.'],
+  vms19:['Лаба 1 — DOS, маски, BAT-файлы с CHOICE.','Лаба 2 — сегменты, PSP, COM и EXE, tasm/tlink/td.','Лаба 3 — ASCII, ввод и вывод числа, стек.','Лаба 4 — видеорежимы VGA/VESA, объём кадра, цветной текст.']
+};
+const QS = {
+  vms1:[['Чем позиционная система отличается от непозиционной?','В позиционной значение цифры зависит от её места (разряда), в непозиционной (римской) — нет.'],['Как перевести дробную часть из десятичной системы в двоичную?','Умножать на 2, записывая целые части результатов сверху вниз, пока дробь не станет нулём или не наберётся нужная точность.']],
+  vms2:[['Почему перевод между 2, 8 и 16 делается группами?','Потому что 8 = 2³ и 16 = 2⁴: каждая восьмеричная цифра соответствует ровно трём битам, шестнадцатеричная — четырём.'],['Что такое двоично-десятичный код и где он применяется?','Каждая десятичная цифра кодируется 4 битами; используется в калькуляторах, индикаторах, часах реального времени CMOS.']],
+  vms3:[['Зачем нужен дополнительный код?','Чтобы вычитание выполнялось сложением, а у нуля было одно представление.'],['Как найти дополнительный код отрицательного числа?','Записать модуль в двоичном коде нужной разрядности, инвертировать все биты и прибавить 1.']],
+  vms4:[['Каков порядок выполнения лабы 1 в командной строке?','MD — создать каталоги, REN/MOVE — переименовать, RD — удалить пустой, COPY CON или ECHO > — создать файлы, COPY/MOVE — перенести, TYPE — показать, DIR с маской — найти.'],['Почему RD не удаляет каталог с файлами?','Защита от случайной потери данных: каталог должен быть пустым.']],
+  vms5:[['Как в основном BAT-файле проверить существование файла?','IF NOT EXIST nf1.bat GOTO nofile — и вывести сообщение в блоке :nofile.'],['Опишите блок-схему CHOICE /C.','Вывести подсказку → ждать клавишу → если её нет в списке /C — сигнал и снова ждать → иначе ERRORLEVEL = номер клавиши → конец.']],
+  vms6:[['Как определить начальные адреса сегментов в лабе 2?','В TD посмотреть DS при старте — это сегмент PSP; SSEG = PSP + 10h, следующие сегменты идут по порядку в тексте, каждый с границы параграфа.'],['Почему COM-программа завершается ret?','В начале PSP стоит команда int 20h, а в стеке при запуске лежит 0000h — ret передаёт управление на неё.']],
+  vms7:[['Зачем 8086 сегментная адресация?','Регистры 16-битные (64 КБ), а шина адреса 20-битная (1 МБ): адрес собирают из сегмента·16 и смещения.'],['Перечислите способы адресации.','Регистровая, непосредственная, прямая, косвенная регистровая, по базе со смещением, индексная, базово-индексная.']],
+  vms8:[['Как работает фрагмент «ввод числа» в лабе 3?','В цикле: int 21h/01h → если Enter — выход; иначе AL − \'0\', DI = DI·10 + цифра.'],['Как работает фрагмент «вывод числа»?','Делим AX на 10, остаток + \'0\' кладём в стек и считаем цифры в CX, пока AX ≠ 0; затем pop и int 21h/02h в цикле loop.']],
+  vms9:[['Как устроен байт атрибута?','Бит 7 — мигание, биты 6–4 — цвет фона, бит 3 — яркость, биты 2–0 — цвет символа.'],['Чем отличаются функции 09h и 0Eh int 10h?','09h выводит символ с атрибутом и не двигает курсор; 0Eh — телетайп: двигает курсор и обрабатывает управляющие символы.']],
+  vms10:[['Как программа лабы 4 перебирает режимы?','Номера режимов в массиве dw; в цикле — 4F02h, проверка AX = 004Fh, вывод текста процедурой, ожидание клавиши, следующий.'],['Почему режим 13h удобен?','Кадр 64 000 байт помещается в один сегмент A000h, один байт на точку, адрес = y·320 + x.']],
+  vms11:[['Как устроено число одинарной точности?','1 бит знака, 8 бит смещённого порядка (смещение 127), 23 бита мантиссы со скрытой единицей.'],['Почему 0,1 + 0,2 ≠ 0,3 в компьютере?','0,1 и 0,2 — бесконечные двоичные дроби, хранятся с округлением; ошибки складываются.']],
+  vms12:[['Перечислите принципы фон Неймана.','Двоичное кодирование, программное управление, однородность памяти, адресность.'],['Опишите цикл выполнения команды.','Выборка команды по CS:IP, декодирование, выборка операндов, исполнение в АЛУ, запись результата; IP указывает на следующую команду.'],['Какие шины есть в ЭВМ?','Адреса, данных и управления.']],
+  vms13:[['Какие флаги устанавливает команда add?','CF, ZF, SF, OF, PF, AF — по результату.'],['Чем отличаются mul и imul, div и idiv?','mul/div работают с беззнаковыми числами, imul/idiv — со знаковыми.']],
+  vms14:[['Как проверить, чётно ли число в AL?','test al,1 / jz чётное — младший бит 0.'],['Чем shr отличается от sar?','shr вдвигает 0 слева (беззнаковое деление), sar повторяет знаковый бит (знаковое деление).']],
+  vms15:[['Чем ja отличается от jg?','ja — «выше» для беззнаковых (CF = 0, ZF = 0), jg — «больше» для знаковых (ZF = 0, SF = OF).'],['Что происходит со стеком при call и ret?','call кладёт адрес возврата (IP или CS:IP) и SP уменьшается; ret снимает его и SP увеличивается.']],
+  vms16:[['Где расположена таблица векторов и как найти вектор?','0000:0000–0000:03FF; вектор n — по адресу n·4.'],['Что делает процессор при выполнении int n?','push FLAGS, сброс IF и TF, push CS, push IP, загрузка CS:IP из таблицы векторов.'],['Что такое резидентная программа?','Программа, которая после завершения остаётся в памяти (int 21h/31h или int 27h), обычно перехватив прерывание.']],
+  vms17:[['Как вывести звук через динамик?','Задать делитель частоты каналу 2 таймера (порты 43h, 42h) и включить биты 0 и 1 порта 61h.'],['Как прочитать файл средствами DOS?','3Dh — открыть (AX = дескриптор), 3Fh — читать (BX, CX, DS:DX), 3Eh — закрыть; проверять CF.']],
+  vms18:[['Чем защищённый режим отличается от реального?','Адрес задаёт селектор и дескриптор, доступно до 4 ГБ, есть защита по уровням привилегий, многозадачность и страничная память.'],['Как перейти в защищённый режим?','Подготовить GDT, lgdt, запретить прерывания, установить бит PE в CR0, выполнить дальний переход.']],
+  vms19:[['Что спросят по лабе 2?','Структуру программы, назначение ASSUME, загрузку DS, PSP, разницу COM и EXE, этапы tasm/tlink/td, адреса сегментов.'],['Что спросят по лабе 4?','Как установить режимы VGA и VESA, как проверить успех, почему режим не ставится, как вывести цветной текст.']]
+};
+for (const L of BOOKS.vms.lessons){ if (SUM[L.id]) L.sum = SUM[L.id]; if (QS[L.id]) L.qs = QS[L.id]; }
+
+/* Части книги */
+BOOKS.vms.parts = [
+  {t:'Информация и числа', ids:['vms1','vms2','vms3','vms11']},
+  {t:'Командная строка DOS — лаба 1', ids:['vms4','vms5']},
+  {t:'Архитектура и процессор 8086', ids:['vms12','vms7','vms13','vms14','vms15']},
+  {t:'Программы для DOS — лабы 2–3', ids:['vms6','vms8','vms16','vms17']},
+  {t:'Экран — лабы 3–4', ids:['vms9','vms10']},
+  {t:'Защищённый режим и защита лаб', ids:['vms18','vms19']}
+];
+})();
+
+</script>
+<script>
 /* ——— движок книги ——— */
 (() => {
 const {h} = U;
 const KEY = 'bit-i-sluchai-v1';
-let S = {book:'tv', i:0, done:{}, pred:{}, solved:{}, exam:'2026-12-25'};
+let S = {book:'tv', i:0, done:{}, pred:{}, solved:{}, exam:'2026-12-25', step:{}, seen:{}};
 try { Object.assign(S, JSON.parse(localStorage.getItem(KEY)||'{}')); } catch(e){}
+// настройки для концентрации: пошаговый режим по умолчанию включён
+S.ui = Object.assign({steps:true, calm:false, big:false, ruler:false, timer:25}, S.ui||{});
+let stepNavApi = null;
+const applyUI = () => { const r = document.documentElement.classList; r.toggle('calm', S.ui.calm); r.toggle('bigtext', S.ui.big); r.toggle('ruler', S.ui.ruler); };
+applyUI();
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} };
+
 // в сборке может быть одна книга или обе
 const KEYS = Object.keys(BOOKS).filter(k => BOOKS[k].lessons.length);
+const ROMAN = ['I','II','III','IV','V','VI','VII','VIII'];
+// главы раскладываются по частям в порядке, заданном книгой
+for (const k of KEYS){
+  const B = BOOKS[k];
+  if (!B.parts) { B.parts = [{t:B.sub, ids:B.lessons.map(L=>L.id)}]; }
+  const order = B.parts.flatMap(p=>p.ids);
+  B.lessons = order.map(id => B.lessons.find(L=>L.id===id)).filter(Boolean);
+  B.parts.forEach((p,pi) => p.ids.forEach(id => { const L = B.lessons.find(x=>x.id===id); if (L){ L.part = p.t; L.partNo = pi; } }));
+}
 const m = /^#(tv|vms)-(\d+)$/.exec(location.hash);
 if (m && KEYS.includes(m[1])){ S.book = m[1]; S.i = +m[2]; }
 if (!KEYS.includes(S.book)){ S.book = KEYS[0]; S.i = 0; }
 S.i = Math.min(S.i, BOOKS[S.book].lessons.length);
 
 const pL = document.getElementById('pL'), pR = document.getElementById('pR'), leaf = document.getElementById('leaf');
-let draw = null, ro = null;
+let draw = null;
 
 const stampSVG = (n, fresh) => {
   const id = 'arc'+Math.random().toString(36).slice(2,7);
@@ -1338,7 +2116,16 @@ const stampSVG = (n, fresh) => {
     <text font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="600" fill="currentColor" letter-spacing="1.6"><textPath href="#${id}">ЗАЧТЕНО ✦ ГЛАВА ${n} ✦ ЗАЧТЕНО ✦</textPath></text>
     <text x="50" y="60" text-anchor="middle" font-family="Alegreya, serif" font-weight="800" font-size="30" fill="currentColor">${n}</text></svg>`;
 };
+const medalSVG = (lvl) => {
+  const rays = Array.from({length:16},(_,i)=>{ const a=i*Math.PI/8, r1=30, r2=i%2?36:38; return `<line x1="${38+r1*Math.cos(a)}" y1="${38+r1*Math.sin(a)}" x2="${38+r2*Math.cos(a)}" y2="${38+r2*Math.sin(a)}"/>`; }).join('');
+  const stars = Array.from({length:5},(_,i)=>`<text x="${18+i*10}" y="58" font-size="9" text-anchor="middle" fill="${i<=lvl?'var(--foil)':'var(--edge)'}">★</text>`).join('');
+  return `<svg viewBox="0 0 76 76" aria-hidden="true"><g stroke="var(--foil)" stroke-width="2" stroke-linecap="round">${rays}</g>
+    <circle cx="38" cy="38" r="27" fill="var(--paper)" stroke="var(--foil)" stroke-width="2.5"/><circle cx="38" cy="38" r="22" fill="none" stroke="var(--foil)" stroke-width="1"/>
+    <text x="38" y="45" text-anchor="middle" font-family="Alegreya, serif" font-weight="800" font-size="22" fill="var(--ink)">${ROMAN[lvl]}</text>${stars}</svg>`;
+};
+
 const doneCount = k => BOOKS[k].lessons.filter(L => S.done[L.id]).length;
+const solvedCount = L => (L.more||[]).filter((_,j)=>S.solved[L.id+'-'+j]).length;
 const updCounts = () => { for (const k of KEYS){ const e = document.getElementById('cnt-'+k); if (e) e.textContent = `${doneCount(k)}/${BOOKS[k].lessons.length}`; } updRank(); };
 
 /* опыт и ранги: всё считается из сохранённого прогресса */
@@ -1353,6 +2140,8 @@ function updRank(){
   document.getElementById('rank').innerHTML = `<span class="rk-l">Ранг</span> <b>${r.name}</b>
     <span class="rk-bar" role="img" aria-label="${r.x} из ${r.mx} очков опыта"><i style="width:${Math.round(r.x/r.mx*100)}%"></i></span>
     <span class="rk-xp">${r.x} XP${r.next ? ` · до «${r.next}» ${r.need}` : ''}</span>`;
+  const B = BOOKS[S.book];
+  document.getElementById('barProg').style.width = (doneCount(S.book)/B.lessons.length*100)+'%';
 }
 const toasts = document.getElementById('toasts');
 function toast(html, kind){
@@ -1368,49 +2157,129 @@ function gain(why, mutate){
   if (r.i > r0) toast(`<span class="tk">Новый ранг</span><b>${r.name}</b>`, 'rankup');
   updCounts();
 }
+const nextUnstamped = B => { const i = B.lessons.findIndex(L => !S.done[L.id]); return i < 0 ? 1 : i+1; };
+const chips = L => h('span',{class:'chips'}, h('span',{class:'chip-st'+(S.done[L.id]?' on':''),title:S.done[L.id]?'штамп получен':'нет штампа'},'✦'),
+  ...(L.more||[]).map((_,j)=>h('span',{class:'dot'+(S.solved[L.id+'-'+j]?' on':'')})));
 
 function renderCover(B){
-  draw = null;
-  const steps = ['Прочитай теорию и формулу на левой странице.','Предскажи ответ — отметь вариант, пока не проверил.','Проверь на рисунке в тетради: двигай ползунки, бросай кости, щёлкай биты.','Подними клапан — там разбор и решение из учебника.','Реши задачу на штамп. Верный ответ — фиолетовая печать «зачтено».'];
+  draw = null; stepNavApi = null; pR.hidden = false;
+  const r = rankOf(B.key), nTasks = B.lessons.reduce((s,L)=>s+1+(L.more||[]).length,0);
+  const cont = nextUnstamped(B);
+  const steps = ['Включи таймер фокуса на 15–25 минут и убери телефон.','Иди по шагам главы: на экране всегда один короткий кусок и кнопка «Дальше».','Предскажи ответ до проверки — так мозг включается.','Подвигай рисунок в опыте, потом реши задачу на штамп.','Закончи «Итогами» и «Вопросами к экзамену». Опыт поднимает ранг.'];
   const art = h('div',{class:'cover-art'});
   pL.replaceChildren(
     h('div',{class:'runhead'}, h('span',{}, KEYS.length>1 ? 'Книга '+(B.key==='tv'?'первая':'вторая') : 'Интерактивный учебник'), h('span',{},'подготовка к сессии')),
-    h('div',{class:'cover'},
+    h('div',{class:'cover reveal'},
+      h('div',{class:'eyebrow'}, `${B.lessons.length} глав · ${B.parts.length} частей · ${nTasks} задач с проверкой`),
       h('h1',{}, B.name),
       h('p',{class:'sub'}, B.sub),
+      h('div',{class:'rule'}),
+      h('div',{class:'medal'}, h('div',{html:medalSVG(r.i)}),
+        h('div',{}, h('div',{class:'mt'},'Твой ранг'), h('div',{class:'mn2'}, r.name),
+          h('span',{class:'rk-bar'}, h('i',{style:`width:${Math.round(r.x/r.mx*100)}%`})),
+          h('div',{class:'mx'}, `${r.x} из ${r.mx} XP${r.next ? ` · до «${r.next}» ещё ${r.need}` : ' · высший ранг'}`))),
+      h('div',{class:'row'}, U.btn(S.done[B.lessons[0].id] ? `Продолжить: глава ${cont}` : 'Начать с главы 1', ()=>go(B.key,cont,1),'pri'), U.btn('Шпаргалка', openSheet), U.btn('Тренажёр', openQuiz), U.btn('Режим концентрации', openFocus)),
       B.cover ? art : null,
       h('p',{class:'theory'}, B.src+'.'),
       h('h3',{},'Как работать с книгой'),
       h('ol',{class:'steps'}, steps.map(s=>h('li',{},s))),
-      h('p',{class:'theory'}, `За штамп главы — ${XP_STAMP} XP, за каждую дополнительную задачу — ${XP_TASK}, за верное предсказание — ${XP_PRED}. Опыт поднимает ранг: «${B.ranks.join('» → «')}».`)
+      h('p',{class:'theory'}, `За штамп главы — ${XP_STAMP} XP, за каждую дополнительную задачу — ${XP_TASK}, за верное предсказание — ${XP_PRED}. Ранги: «${B.ranks.join('» → «')}».`)
     ),
     h('div',{class:'folio'},'i')
   );
   if (B.cover) draw = B.cover(art) || null;
-  const days = Math.ceil((new Date(S.exam+'T09:00') - new Date())/864e5);
-  const left = KEYS.reduce((s,k)=> s + BOOKS[k].lessons.length - doneCount(k), 0);
-  const weeks = Math.max(1, days/7);
-  const dateIn = h('input',{type:'date',class:'txt',id:'examDate',value:S.exam});
-  dateIn.addEventListener('change', () => { if (dateIn.value){ S.exam = dateIn.value; save(); renderCover(B); } });
+  let n = 0;
   pR.replaceChildren(
-    h('div',{class:'runhead'}, h('span',{},'Оглавление'), h('span',{}, `${doneCount(B.key)} из ${B.lessons.length} штампов`)),
-    h('ul',{class:'toclist'}, B.lessons.map((L,i)=>h('li',{}, h('button',{type:'button',onclick:()=>go(B.key,i+1,1)},
-      h('span',{class:'n'}, String(i+1)), h('span',{}, L.title, h('br'), h('span',{class:'s'}, L.src)), h('span',{class:'st'}, (S.done[L.id]?'✦ зачтено':'') + (L.more ? ` · задачи ${solvedCount(L)}/${L.more.length}` : '')))))),
-    h('div',{class:'exam'},
-      h('div',{class:'lbl'},'До экзамена'),
-      h('div',{class:'big'}, days>0 ? `${days} ${plural(days,'день','дня','дней')}` : 'сегодня или уже прошёл'),
-      h('div',{}, days>0 ? `Осталось глав без штампа: ${left}${KEYS.length>1?' в обеих книгах':''}. Это примерно ${Math.ceil(left/weeks)} ${plural(Math.ceil(left/weeks),'глава','главы','глав')} в неделю, если оставить последнюю неделю на тренажёр.` : ''),
-      h('label',{for:'examDate'},'Дата экзамена:', dateIn),
-      h('div',{class:'row'}, U.btn('Начать с главы 1', ()=>go(B.key,1,1),'pri'), U.btn('Тренажёр: 10 вопросов', openQuiz))
-    ),
+    h('div',{class:'runhead'}, h('span',{},'Карта курса'), h('span',{}, `${doneCount(B.key)} из ${B.lessons.length} штампов`)),
+    ...B.parts.map((p,pi) => {
+      const Ls = B.lessons.filter(L=>L.partNo===pi), d = Ls.filter(L=>S.done[L.id]).length;
+      return h('div',{class:'partblk reveal',style:`animation-delay:${pi*60}ms`},
+        h('div',{class:'parthead'}, h('span',{class:'pr'}, ROMAN[pi]), h('span',{class:'pt'}, p.t), h('span',{class:'pc'}, `${d}/${Ls.length}`)),
+        h('div',{class:'pbar'}, h('i',{style:`width:${d/Ls.length*100}%`})),
+        h('ul',{class:'toclist'}, Ls.map(L => { const i = ++n; return h('li',{}, h('button',{type:'button',onclick:()=>go(B.key,i,1)},
+          h('span',{class:'n'}, String(i)), h('span',{}, L.title, h('br'), h('span',{class:'s'}, L.src)), chips(L))); })));
+    }),
+    planner(B),
     h('div',{class:'folio'},'ii')
   );
 }
 function plural(n,a,b,c){ n=Math.abs(n)%100; const d=n%10; if (n>10&&n<20) return c; if (d>1&&d<5) return b; if (d===1) return a; return c; }
 
+/* ——— планировщик подготовки ———
+   Оценка времени главы: чтение теории (~250 знаков в минуту для учебного текста), опыт, предсказание с разбором,
+   задача на штамп, по 6 минут на каждую дополнительную задачу и 5 минут на итоги и вопросы. */
+const plainLen = html => html.replace(/<[^>]+>/g,'').replace(/\s+/g,' ').length;
+const estFull = L => Math.round(plainLen(L.theory + (L.flap||'') + (L.hook?L.hook.html:''))/250 + 12 + 6 + 8 + (L.more||[]).length*6 + (L.qs?5:0));
+const estLeft = L => S.done[L.id] ? ((L.more||[]).length - solvedCount(L))*6 : estFull(L) - solvedCount(L)*6;
+const hm = m => { m = Math.round(m); const hh = Math.floor(m/60), mm = m%60; return hh ? `${hh} ч${mm?' '+mm+' мин':''}` : `${mm} мин`; };
+const ddmm = d => d.toLocaleDateString('ru-RU',{weekday:'short',day:'2-digit',month:'2-digit'});
+const WEEK = {7:[0,1,2,3,4,5,6],6:[1,2,3,4,5,6],5:[1,2,3,4,5],4:[1,2,4,5],3:[1,3,5]};
+function planner(B){
+  const P = S.plan = S.plan || {}; const p = P[B.key] = Object.assign({exam:S.exam||'2026-12-25', mode:'min', minutes:60, chapters:1, days:6, review:3}, P[B.key]||{});
+  const box = h('div',{class:'exam planner'});
+  const ctl = (id, label, min, max, step, key, fmt) => U.slider(id, label, min, max, step, p[key], fmt, v => { p[key] = v; save(); calc(); });
+  const dateIn = h('input',{type:'date',class:'txt',id:'pl-exam-'+B.key,value:p.exam});
+  dateIn.addEventListener('change', () => { if (dateIn.value){ p.exam = dateIn.value; save(); calc(); } });
+  const bMin = U.btn('в минутах', ()=>{ p.mode='min'; save(); sync(); calc(); }), bCh = U.btn('в главах', ()=>{ p.mode='ch'; save(); sync(); calc(); });
+  const sMin = ctl('pl-min-'+B.key,'могу в день',15,300,15,'minutes',v=>hm(v));
+  const sCh = ctl('pl-ch-'+B.key,'глав в день',0.5,5,0.5,'chapters',v=>String(v).replace('.',','));
+  const sDays = ctl('pl-days-'+B.key,'дней в неделю',3,7,1,'days',v=>v);
+  const sRev = ctl('pl-rev-'+B.key,'дней на повторение',0,7,1,'review',v=>v);
+  const sync = () => { bMin.setAttribute('aria-pressed', p.mode==='min'); bCh.setAttribute('aria-pressed', p.mode==='ch'); sMin.hidden = p.mode!=='min'; sCh.hidden = p.mode!=='ch'; };
+  const out = h('div',{class:'pl-out'}), plan = h('div',{class:'pl-plan'});
+  box.append(h('div',{class:'lbl'},'План подготовки'),
+    h('label',{for:'pl-exam-'+B.key},'Дата экзамена:', dateIn),
+    h('div',{class:'row'}, h('span',{style:'color:var(--ink-soft);font-size:14px'},'Сколько могу учить:'), bMin, bCh),
+    h('div',{class:'ctls'}, sMin, sCh, sDays, sRev), out, plan);
+  sync();
+  function calc(){
+    const left = B.lessons.map((L,i)=>({L, i:i+1, m:estLeft(L)})).filter(x=>x.m>0);
+    const total = left.reduce((s,x)=>s+x.m,0), avg = B.lessons.reduce((s,L)=>s+estFull(L),0)/B.lessons.length;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const exam = new Date(p.exam+'T00:00'), days = Math.round((exam - today)/864e5);
+    const studyEnd = new Date(exam); studyEnd.setDate(studyEnd.getDate() - p.review);
+    const wk = WEEK[p.days];
+    const dayList = []; for (const d = new Date(today); d < studyEnd; d.setDate(d.getDate()+1)) if (wk.includes(d.getDay())) dayList.push(new Date(d));
+    const cap = p.mode==='min' ? p.minutes : p.chapters*avg;
+    const need = Math.ceil(total / Math.max(1, cap));                       // учебных дней при твоём темпе
+    const minPerDay = dayList.length ? Math.ceil(total / dayList.length / 5)*5 : Infinity;
+    // дата окончания при твоём темпе (считая только учебные дни недели)
+    let fin = null; { let c = 0; for (const d = new Date(today); c < need && c < 2000; d.setDate(d.getDate()+1)) if (wk.includes(d.getDay())) { c++; fin = new Date(d); } }
+    const ok = !total || (fin && fin < studyEnd);
+    const spare = fin ? Math.round((studyEnd - fin)/864e5) - 1 : 0;
+    if (!total){ out.innerHTML = `<div class="pl-verdict ok">Все главы пройдены. До экзамена ${days} ${plural(days,'день','дня','дней')} — гоняй тренажёр и шпаргалку.</div>`; plan.replaceChildren(); return; }
+    out.innerHTML = `
+      <div class="pl-grid">
+        <div><span>Осталось</span><b>${hm(total)}</b><small>${left.length} ${plural(left.length,'глава','главы','глав')}, ≈ ${hm(avg)} на главу</small></div>
+        <div><span>До экзамена</span><b>${days>0?days+' '+plural(days,'день','дня','дней'):'—'}</b><small>учебных дней до повторения: ${dayList.length}</small></div>
+        <div><span>Твой темп</span><b>${hm(cap)} / день</b><small>займёт ${need} ${plural(need,'учебный день','учебных дня','учебных дней')} · это ${Math.max(1,Math.round(cap/25))} ${plural(Math.max(1,Math.round(cap/25)),'сессия','сессии','сессий')} по 25 мин</small></div>
+        <div><span>Нужно минимум</span><b>${isFinite(minPerDay)?hm(minPerDay)+' / день':'—'}</b><small>${isFinite(minPerDay)?'≈ '+(minPerDay/avg).toFixed(1).replace('.',',')+' главы в день':'дата экзамена уже прошла'}</small></div>
+      </div>
+      <div class="pl-verdict ${ok?'ok':'no'}">${days<=0 ? 'Поставь дату экзамена в будущем.' : ok
+        ? `Успеваешь: закончишь ${fin.toLocaleDateString('ru-RU',{day:'numeric',month:'long'})}${spare>0?`, запас ${spare} ${plural(spare,'день','дня','дней')}`:''}, затем ${p.review} ${plural(p.review,'день','дня','дней')} повторения.`
+        : `Не успеваешь: при таком темпе закончишь ${fin?fin.toLocaleDateString('ru-RU',{day:'numeric',month:'long'}):'слишком поздно'}. Занимайся хотя бы ${hm(minPerDay)} в день${p.days<7?' или добавь дни в неделю':''}.`}</div>`;
+    // раскладка глав по дням: главы целиком, длинная глава может перейти на следующий день
+    const rows = []; let q = left.map(x=>({...x})), di = 0;
+    const dayCap = ok ? cap : Math.max(cap, minPerDay);
+    while (q.length && di < dayList.length + 60){
+      const d = dayList[di] || (() => { const t = new Date(dayList[dayList.length-1]||today); t.setDate(t.getDate()+(di-dayList.length+1)); return t; })();
+      let room = dayCap, items = [];
+      while (q.length && room > 0){ const x = q[0], take = Math.min(x.m, room); const begun = x.m < estLeft(x.L); items.push(`гл. ${x.i}${take<x.m ? (begun?' (продолжить)':' (начать)') : (begun?' (закончить)':'')}`); x.m -= take; room -= take; if (x.m<=0) q.shift(); }
+      rows.push([d, items, dayCap-room]); di++;
+    }
+    const tbl = h('table',{}, h('tr',{}, h('th',{},'День'), h('th',{},'Что учить'), h('th',{},'Время')),
+      rows.map(([d,it,m],k)=>h('tr',{class:k>=8?'more-row':''}, h('td',{}, ddmm(d)), h('td',{}, it.join(', ')), h('td',{}, hm(m)))));
+    if (p.review) tbl.append(h('tr',{}, h('td',{}, '+'+p.review+' дн.'), h('td',{}, 'повторение: шпаргалка, вопросы к экзамену, тренажёр'), h('td',{}, '—')));
+    const showAll = rows.length > 8 ? U.btn(`Показать весь план (${rows.length} дней)`, ()=>{ tbl.classList.add('all'); showAll.remove(); }) : null;
+    plan.replaceChildren(h('div',{class:'tbl'}, tbl), showAll);
+  }
+  calc();
+  return box;
+}
+
 function renderLesson(B, i){
   const L = B.lessons[i-1];
-  // левая страница
+  const stepMode = !!S.ui.steps;
   const pred = S.pred[L.id];
   const flapBody = h('div',{class:'flapbody',hidden:true});
   const flapBtn = h('button',{class:'flapbtn',type:'button','aria-expanded':'false'},
@@ -1439,47 +2308,92 @@ function renderLesson(B, i){
   };
   flapBtn.addEventListener('click', openFlap);
   mark();
-  pL.replaceChildren(
-    h('div',{class:'runhead'}, h('span',{}, `${B.name} · глава ${i}`), h('span',{}, L.src)),
-    h('h2',{}, h('span',{class:'no'}, i+'.'), L.title),
-    L.hook ? h('aside',{class:'hook'}, h('div',{class:'hk-eye'}, L.hook.eye), h('h3',{}, L.hook.title), h('div',{html:L.hook.html})) : null,
-    h('div',{class:'theory',html:L.theory}),
-    h('div',{class:'predict'}, h('div',{class:'lbl'},'Предскажи'), h('p',{html:L.predict.q}), opts),
-    flapBtn, flapBody,
-    h('div',{class:'folio'}, String(i*2))
-  );
-  if (pred!=null) openFlap(true);
 
-  // правая страница
+  // смысловые блоки главы
+  const hookEl = L.hook ? h('aside',{class:'hook reveal',style:'animation-delay:80ms'}, h('div',{class:'hk-eye'}, L.hook.eye), h('h3',{}, L.hook.title), h('div',{html:L.hook.html})) : null;
+  const chunks = L.theory.split(/(?=<h3>)/).map(s=>s.trim()).filter(Boolean);
+  const theoryEls = chunks.map(c=>h('div',{class:'theory',html:c}));
+  const predictEl = h('div',{class:'predict'}, h('div',{class:'lbl'},'Предскажи'), h('p',{html:L.predict.q}), opts);
+  const sumEl = L.sum ? h('div',{class:'sum'}, h('div',{class:'lbl'},'Итоги главы'), h('ul',{}, L.sum.map(s=>h('li',{html:s})))) : null;
+  const qsEl = L.qs ? h('div',{class:'examq'}, h('div',{class:'lbl'},'Вопросы к экзамену'),
+    L.qs.map(([q,a])=>h('details',{}, h('summary',{html:q}), h('div',{class:'ans',html:a})))) : null;
+
   const fig = h('div',{class:'fig'});
   const input = h('input',{class:'txt',id:'ans-'+L.id,autocomplete:'off',placeholder:L.ch.ph||'ответ','aria-label':'Ответ'});
   const fb = h('p',{class:'fb',role:'status'});
   const slot = h('div',{class:'stampslot'});
-  if (S.done[L.id]){ slot.innerHTML = stampSVG(i); fb.className='fb ok'; fb.textContent = 'Зачтено. Ответ: '+L.ch.ans; }
+  if (S.done[L.id]){ slot.innerHTML = stampSVG(i); fb.className='fb ok'; fb.innerHTML = 'Зачтено. Ответ: '+L.ch.ans; }
   const form = h('form',{}, input, h('button',{class:'btn pri',type:'submit'},'Проверить'));
   form.addEventListener('submit', e => {
     e.preventDefault();
     if (!input.value.trim()){ fb.className='fb no'; fb.textContent='Впиши ответ в поле.'; return; }
     if (L.ch.check(input.value)){
-      fb.className='fb ok'; fb.textContent = 'Верно! Ответ: '+L.ch.ans+'.';
+      fb.className='fb ok'; fb.innerHTML = 'Верно! Ответ: '+L.ch.ans+'.';
       if (!S.done[L.id]){ gain('и штамп главы '+i, ()=>{ S.done[L.id]=true; }); slot.innerHTML = stampSVG(i,true); }
     } else { fb.className='fb no'; fb.textContent = L.ch.wrong || 'Пока не сходится. Проверь вычисления или открой подсказку.'; }
   });
-  pR.replaceChildren(
-    h('div',{class:'runhead'}, h('span',{},'Опыт'), h('span',{}, 'рис. '+i)),
-    fig,
-    h('p',{class:'cap',html:`<b>РИС. ${i}.</b> ${L.figCap}`}),
-    h('p',{class:'try',html:'✎ '+L.try}),
-    h('div',{class:'challenge'}, slot, h('div',{class:'lbl'},'Задача на штамп'), h('p',{html:L.ch.q}), form, fb,
-      L.ch.hint ? h('details',{class:'hint'}, h('summary',{},'подсказка'), h('div',{html:L.ch.hint})) : null),
-    L.more ? renderMore(L) : null,
-    h('div',{class:'folio'}, String(i*2+1))
+  const capEl = h('p',{class:'cap',html:`<b>РИС. ${i}.</b> ${L.figCap}`}), tryEl = h('p',{class:'try',html:'✎ '+L.try});
+  const chEl = h('div',{class:'challenge'}, slot, h('div',{class:'lbl'},'Задача на штамп'), h('p',{html:L.ch.q}), form, fb,
+    L.ch.hint ? h('details',{class:'hint'}, h('summary',{},'подсказка'), h('div',{html:L.ch.hint})) : null);
+  const moreEl = L.more ? renderMore(L) : null;
+
+  // шаги главы: по одному смысловому куску за раз
+  const steps = [];
+  if (hookEl) steps.push({t:'История', sub:L.hook.title, min:2, els:[hookEl]});
+  theoryEls.forEach((el,k)=>{ const t3 = el.querySelector('h3');
+    steps.push({t: theoryEls.length>1 ? `Теория ${k+1}/${theoryEls.length}` : 'Теория', sub: t3 ? t3.textContent.replace('§','').trim() : 'главное', min: Math.max(1, Math.round(plainLen(el.innerHTML)/250)+1), els:[el]}); });
+  steps.push({t:'Предскажи', sub:'ответь до проверки', min:2, els:[predictEl, flapBtn, flapBody]});
+  steps.push({t:'Опыт', sub:'интерактивный рисунок', min:8, els:[fig, capEl, tryEl], right:true});
+  steps.push({t:'Задачи', sub:'штамп и доп. задачи', min:8+(L.more||[]).length*6, els:[chEl, moreEl].filter(Boolean), right:true});
+  if (sumEl || qsEl) steps.push({t:'Итоги', sub:'итоги и вопросы к экзамену', min:5, els:[sumEl, qsEl].filter(Boolean)});
+
+  const leftEls = steps.filter(s=>!s.right).flatMap(s=>s.els), rightEls = steps.filter(s=>s.right).flatMap(s=>s.els);
+  const stepBar = stepMode ? h('div',{class:'stepbar',role:'tablist','aria-label':'Шаги главы'}) : null;
+  const stepHead = stepMode ? h('div',{class:'stephead'}) : null;
+  const stepNav = stepMode ? h('div',{class:'stepnav'}) : null;
+  pL.replaceChildren(
+    h('div',{class:'runhead'}, h('span',{}, `${B.name} · часть ${ROMAN[L.partNo]}`), h('span',{}, L.src)),
+    h('div',{class:'opener reveal'}, h('span',{class:'bignum','aria-hidden':'true'}, String(i)),
+      h('div',{class:'part-lbl'}, `Глава ${i} · ${L.part}`), h('h2',{}, L.title)),
+    stepBar, stepHead, ...leftEls,
+    h('div',{class:'folio'}, String(i*2))
   );
+  pR.replaceChildren(h('div',{class:'runhead'}, h('span',{},'Опыт'), h('span',{}, 'рис. '+i)), ...rightEls, h('div',{class:'folio'}, String(i*2+1)));
+  if (pred!=null) openFlap(true);
   draw = L.fig(fig) || null;
-  if (draw) requestAnimationFrame(()=>draw());
+
+  if (!stepMode){ pR.hidden = false; if (draw) requestAnimationFrame(()=>draw()); return; }
+
+  // пошаговый режим
+  S.step = S.step || {}; S.seen = S.seen || {};
+  const total = steps.reduce((s,x)=>s+x.min,0);
+  let cur = Math.min(S.step[L.id]||0, steps.length-1);
+  const show = (k, scroll) => {
+    cur = k; S.step[L.id] = k; S.seen[L.id] = Math.max(S.seen[L.id]||0, k); save();
+    steps.forEach((s,j)=>s.els.forEach(el=>{ el.hidden = j!==k; }));
+    if (!flapBody.childElementCount || flapBtn.getAttribute('aria-expanded')!=='true') flapBody.hidden = true;
+    const st = steps[k], left = steps.slice(k).reduce((s,x)=>s+x.min,0);
+    pR.hidden = !st.right;
+    stepBar.replaceChildren(...steps.map((s,j)=>h('button',{type:'button',role:'tab','aria-selected':j===k,class:'sp'+(j===k?' cur':j<=(S.seen[L.id]||0)?' done':''),onclick:()=>show(j,true)},
+      h('b',{}, j<k||(j<=(S.seen[L.id]||0)&&j!==k) ? '✓' : String(j+1)), ' '+s.t)));
+    stepHead.innerHTML = `<span>Шаг ${k+1} из ${steps.length} · ≈ ${st.min} мин</span><b>${st.t}${st.sub?': '+st.sub:''}</b><i style="width:${(k+1)/steps.length*100}%"></i><small>до конца главы ≈ ${left} мин из ${total}</small>`;
+    const last = k === steps.length-1, nextCh = i < B.lessons.length;
+    const speak = ('speechSynthesis' in window) ? U.btn('🔊 Слушать', ()=>{
+      try { if (speechSynthesis.speaking){ speechSynthesis.cancel(); return; }
+        const u = new SpeechSynthesisUtterance(st.els.map(e=>e.innerText).join('. ').replace(/\s+/g,' ').slice(0,4000)); u.lang = 'ru-RU'; u.rate = 1; speechSynthesis.speak(u); } catch(e){} }) : null;
+    stepNav.replaceChildren(
+      U.btn('← Назад', ()=> k ? show(k-1,true) : (i>1 ? go(B.key,i-1,-1) : go(B.key,0,-1)), 'big'),
+      h('span',{class:'sn-mid'}, speak),
+      U.btn(last ? (nextCh ? 'Следующая глава →' : 'К обложке →') : 'Дальше →', ()=> !last ? show(k+1,true) : go(B.key, nextCh ? i+1 : 0, 1), 'pri big'));
+    (st.right ? pR : pL).insertBefore(stepNav, (st.right ? pR : pL).querySelector('.folio'));
+    if (st.right && draw) requestAnimationFrame(()=>draw());
+    if (scroll){ try { speechSynthesis && speechSynthesis.cancel(); } catch(e){} stepBar.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start'}); }
+    stepBar.querySelector('.cur')?.scrollIntoView({block:'nearest', inline:'center'});
+  };
+  stepNavApi = { next: ()=> cur < steps.length-1 ? (show(cur+1,true), true) : false, prev: ()=> cur > 0 ? (show(cur-1,true), true) : false };
+  show(cur, false);
 }
 
-const solvedCount = L => (L.more||[]).filter((_,j)=>S.solved[L.id+'-'+j]).length;
 function renderMore(L){
   return h('div',{class:'more'}, h('div',{class:'lbl'}, BOOKS[S.book].moreTitle), L.more.map((P,j)=>{
     const key = L.id+'-'+j;
@@ -1501,11 +2415,13 @@ function renderMore(L){
 
 function render(){
   const B = BOOKS[S.book];
-  document.getElementById('book').dataset.book = S.book;
+  const bookEl = document.getElementById('book');
+  bookEl.dataset.book = S.book;
+  bookEl.classList.toggle('stepmode', !!S.ui.steps && S.i>0);
   for (const k of KEYS){ const e = document.getElementById('sp-'+k); if (e) e.setAttribute('aria-pressed', k===S.book); }
   if (S.i===0) renderCover(B); else renderLesson(B, S.i);
   const L = B.lessons[S.i-1];
-  document.getElementById('bTitle').innerHTML = S.i ? `<small>${S.i}</small>${L.title}` : `<small>${B.name}</small>Обложка и оглавление`;
+  document.getElementById('bTitle').innerHTML = S.i ? `<small>${S.i}/${B.lessons.length}</small>${L.title}` : `<small>${B.name}</small>Обложка и карта курса`;
   document.getElementById('bPrev').disabled = S.i===0;
   document.getElementById('bNext').disabled = S.i>=B.lessons.length;
   updCounts();
@@ -1515,10 +2431,9 @@ function render(){
 let busy = false;
 function go(book, i, dir){
   if (busy) return;
-  const same = book===S.book && i===S.i;
-  if (same) return;
+  if (book===S.book && i===S.i) return;
   closeToc();
-  const animate = !matchMedia('(prefers-reduced-motion: reduce)').matches && innerWidth>900;
+  const animate = !matchMedia('(prefers-reduced-motion: reduce)').matches && innerWidth>900 && !S.ui.steps && !S.ui.calm;
   S.book = book; S.i = i; save();
   if (!animate){ render(); window.scrollTo({top:0}); return; }
   busy = true;
@@ -1531,17 +2446,41 @@ function go(book, i, dir){
 const toc = document.getElementById('toc'), tocPanel = document.getElementById('tocPanel');
 function openToc(){
   tocPanel.replaceChildren(U.btn('Закрыть', closeToc, 'close'), h('h3',{style:'margin-top:0'},'Оглавление'),
-    ...KEYS.map(k => h('div',{},
-      h('h3',{}, BOOKS[k].name+' — '+BOOKS[k].sub),
-      h('ul',{class:'toclist'},
-        h('li',{}, h('button',{type:'button',onclick:()=>go(k,0,-1)}, h('span',{class:'n'},'·'), h('span',{},'Обложка, план, тренажёр'), h('span',{}))),
-        BOOKS[k].lessons.map((L,i)=>h('li',{}, h('button',{type:'button',onclick:()=>go(k,i+1,1)}, h('span',{class:'n'},String(i+1)), h('span',{},L.title), h('span',{class:'st'}, S.done[L.id]?'✦':''))))))));
+    ...KEYS.map(k => { const B = BOOKS[k]; let n = 0; return h('div',{},
+      h('h3',{}, B.name+' — '+B.sub),
+      h('ul',{class:'toclist'}, h('li',{}, h('button',{type:'button',onclick:()=>go(k,0,-1)}, h('span',{class:'n'},'·'), h('span',{},'Обложка и карта курса'), h('span',{})))),
+      ...B.parts.map((p,pi)=>h('div',{}, h('div',{class:'part-lbl',style:'margin:12px 0 2px'}, `Часть ${ROMAN[pi]} · ${p.t}`),
+        h('ul',{class:'toclist'}, B.lessons.filter(L=>L.partNo===pi).map(L=>{ const i = ++n; return h('li',{}, h('button',{type:'button',onclick:()=>go(k,i,1)}, h('span',{class:'n'},String(i)), h('span',{},L.title), chips(L))); }))))); }));
   toc.hidden = false; tocPanel.querySelector('button').focus();
 }
 function closeToc(){ toc.hidden = true; }
 toc.addEventListener('click', e => { if (e.target===toc) closeToc(); });
 
-/* тренажёр: случайные вопросы «предскажи» из обеих книг */
+/* шпаргалка: все формулы и итоги глав текущей книги */
+const sheet = document.getElementById('sheet'), sheetIn = document.getElementById('sheetIn');
+function openSheet(){
+  const B = BOOKS[S.book];
+  const search = h('input',{class:'txt',id:'sheetQ',type:'search',placeholder:'поиск по шпаргалке','aria-label':'Поиск по шпаргалке',style:'width:min(280px,100%)'});
+  const cols = h('div',{class:'cols'});
+  let n = 0;
+  B.parts.forEach((p,pi)=>{
+    cols.append(h('div',{class:'ph'}, `Часть ${ROMAN[pi]} · ${p.t}`));
+    B.lessons.filter(L=>L.partNo===pi).forEach(L=>{
+      const i = ++n, tmp = document.createElement('div'); tmp.innerHTML = L.theory;
+      const it = h('div',{class:'item'}, h('h3',{}, h('span',{}, i+'.'), ' '+L.title));
+      tmp.querySelectorAll('.f').forEach(f=>it.append(f));
+      if (L.sum) it.append(h('ul',{}, L.sum.map(s=>h('li',{html:s}))));
+      it.append(U.btn('Открыть главу', ()=>{ sheet.hidden = true; go(S.book, i, 1); }));
+      cols.append(it);
+    });
+  });
+  search.addEventListener('input', () => { const q = search.value.trim().toLowerCase();
+    cols.querySelectorAll('.item').forEach(it => it.hidden = q && !it.textContent.toLowerCase().includes(q)); });
+  sheetIn.replaceChildren(h('header',{}, h('h2',{}, `Шпаргалка · ${B.name}`), h('div',{class:'row'}, search, U.btn('Закрыть', ()=>sheet.hidden=true,'pri'))), cols);
+  sheet.hidden = false; sheet.scrollTop = 0; search.focus();
+}
+
+/* тренажёр: случайные вопросы «предскажи» и вопросы к экзамену */
 const quiz = document.getElementById('quiz'), card = document.getElementById('quizCard');
 let Q = null;
 function openQuiz(){
@@ -1553,7 +2492,7 @@ function openQuiz(){
 function showQ(){
   if (Q.n>=Q.items.length){
     card.replaceChildren(h('div',{class:'meta'},'Итог'), h('h2',{}, `${Q.score} из ${Q.items.length}`),
-      h('p',{}, Q.score>=8 ? 'Отлично, так держать до экзамена.' : 'Вернись к главам, где ошибся: разбор под клапаном.'),
+      h('p',{}, Q.score>=8 ? 'Отлично, так держать до экзамена.' : 'Вернись к главам, где ошибся: разбор под клапаном, итоги — в конце главы.'),
       h('div',{class:'row'}, U.btn('Ещё 10', openQuiz,'pri'), U.btn('Закрыть', ()=>quiz.hidden=true)));
     card.querySelector('button').focus(); return;
   }
@@ -1580,11 +2519,47 @@ function showQ(){
 }
 quiz.addEventListener('click', e => { if (e.target===quiz) quiz.hidden=true; });
 document.addEventListener('keydown', e => {
-  if (e.key==='Escape'){ closeToc(); quiz.hidden = true; }
-  if (e.target.matches('input,select,textarea') || !toc.hidden || !quiz.hidden) return;
-  if (e.key==='ArrowRight' && S.i<BOOKS[S.book].lessons.length) go(S.book,S.i+1,1);
-  if (e.key==='ArrowLeft' && S.i>0) go(S.book,S.i-1,-1);
+  if (e.key==='Escape'){ closeToc(); quiz.hidden = true; sheet.hidden = true; focusDlg.hidden = true; }
+  if (e.target.matches('input,select,textarea') || !toc.hidden || !quiz.hidden || !sheet.hidden || !focusDlg.hidden) return;
+  if (e.key==='ArrowRight'){ if (stepNavApi && stepNavApi.next()) return; if (S.i<BOOKS[S.book].lessons.length) go(S.book,S.i+1,1); }
+  if (e.key==='ArrowLeft'){ if (stepNavApi && stepNavApi.prev()) return; if (S.i>0) go(S.book,S.i-1,-1); }
 });
+
+/* режим концентрации: настройки и таймер фокуса */
+const focusDlg = document.getElementById('focus'), focusCard = document.getElementById('focusCard'), chip = document.getElementById('timerChip');
+const T = {mode:null, end:0, iv:0};
+const BREAK = {10:2, 15:3, 25:5, 45:10};
+function beep(){ try { const c = new (window.AudioContext||window.webkitAudioContext)(); [0,.25].forEach(t=>{ const o = c.createOscillator(), g = c.createGain(); o.frequency.value = 660; g.gain.value = .05; o.connect(g).connect(c.destination); o.start(c.currentTime+t); o.stop(c.currentTime+t+.15); }); } catch(e){} }
+function timerStart(mode, min){
+  clearInterval(T.iv); T.mode = mode; T.end = Date.now() + min*60000;
+  const tick = () => { const s = Math.max(0, Math.round((T.end-Date.now())/1000));
+    chip.hidden = false; chip.className = 'timerchip '+mode;
+    chip.innerHTML = `<b>${mode==='focus'?'Фокус':'Перерыв'}</b> ${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')} <button type="button" aria-label="Остановить таймер">✕</button>`;
+    chip.querySelector('button').onclick = timerStop;
+    if (!s){ clearInterval(T.iv); beep();
+      if (mode==='focus'){ toast(`<b>Сессия окончена!</b> Перерыв ${BREAK[S.ui.timer]||5} мин: встань, попей воды, не открывай ленту.`, 'rankup'); timerStart('break', BREAK[S.ui.timer]||5); }
+      else { toast('<b>Перерыв окончен.</b> Готов к следующей сессии? Нажми таймер ещё раз.'); timerStop(); } } };
+  tick(); T.iv = setInterval(tick, 1000);
+}
+function timerStop(){ clearInterval(T.iv); T.mode = null; chip.hidden = true; }
+function openFocus(){
+  const row = (key, title, desc) => { const id = 'ui-'+key, cb = h('input',{type:'checkbox',id,checked:!!S.ui[key]});
+    cb.addEventListener('change', ()=>{ S.ui[key] = cb.checked; save(); applyUI(); render(); });
+    return h('label',{class:'fopt',for:id}, cb, h('span',{}, h('b',{},title), h('small',{},desc))); };
+  focusCard.replaceChildren(
+    h('div',{class:'meta'},'Настройки для концентрации'), h('h2',{style:'margin:4px 0 12px'},'Режим фокуса'),
+    row('steps','Пошаговый режим','Глава разбита на короткие шаги: на экране один кусок и кнопка «Дальше». Стрелки ← → листают шаги.'),
+    row('calm','Спокойное оформление','Без текстур, наклонов, анимаций и декоративных цифр — меньше отвлекает.'),
+    row('big','Крупный текст','Шрифт больше, строки свободнее.'),
+    row('ruler','Линейка чтения','Абзац под курсором остаётся ярким, остальной текст приглушается.'),
+    h('h3',{},'Таймер фокуса'),
+    h('p',{style:'margin:0 0 8px;color:var(--ink-soft);font-size:14px'},'Короткие сессии с перерывами держат внимание лучше, чем час подряд. После сессии таймер сам предложит перерыв.'),
+    h('div',{class:'row'}, ...[10,15,25,45].map(m=>{ const b = U.btn(m+' мин', ()=>{ S.ui.timer = m; save(); timerStart('focus', m); focusDlg.hidden = true; }, S.ui.timer===m?'pri':''); return b; }),
+      T.mode ? U.btn('Остановить', ()=>{ timerStop(); openFocus(); }) : null),
+    h('div',{class:'row',style:'margin-top:16px;justify-content:flex-end'}, U.btn('Готово', ()=>focusDlg.hidden=true,'pri')));
+  focusDlg.hidden = false; focusCard.querySelector('input').focus();
+}
+focusDlg.addEventListener('click', e => { if (e.target===focusDlg) focusDlg.hidden = true; });
 
 /* тема */
 function applyTheme(){ if (S.theme) document.documentElement.dataset.theme = S.theme; else delete document.documentElement.dataset.theme; draw && draw(); }
@@ -1597,6 +2572,8 @@ applyTheme();
 
 document.getElementById('bMenu').onclick = openToc;
 document.getElementById('bQuiz').onclick = openQuiz;
+document.getElementById('bSheet').onclick = openSheet;
+document.getElementById('bFocus').onclick = () => T.mode ? openFocus() : openFocus();
 document.getElementById('bPrev').onclick = () => go(S.book, S.i-1, -1);
 document.getElementById('bNext').onclick = () => go(S.book, S.i+1, 1);
 if (KEYS.length > 1) document.getElementById('spines').append(...KEYS.map(k =>
@@ -1609,6 +2586,7 @@ new ResizeObserver(()=>{ cancelAnimationFrame(raf); raf = requestAnimationFrame(
 document.fonts && document.fonts.ready.then(()=>draw && draw());
 render();
 })();
+
 </script>
 
 </body>
